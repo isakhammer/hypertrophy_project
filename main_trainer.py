@@ -3,32 +3,47 @@ from matplotlib import pyplot as plt
 import random
 
 
-max_squat = 10
 
-V1 = 100
-t1 = 30
+class MuscleGroup:
+
+    def __init__(self, recovery_rate, start_fatigue):
+        self.day = 0
+        self.prev_fatigue = 0
+        self.recovery_rate = recovery_rate
+
+    def update(self, stimulated_reps):
+        self.day +=1
+        self.prev_fatigue += self.compute_fatigue() + stimulated_reps
+
+    def compute_fatigue(self):
+        fatigue = self.prev_fatigue*np.exp(-self.days*self.recovery_rate)
+        return fatigue
+
+
+def main():
+
+    # Initialize muscle groups
+    muscle_groups = {
+
+    }
+
+    # Initialize exercises and how much it affect muscle groups
+    # Should be loaded from json file
+    exercises = {
+
+    }
+
+    # Initialize muscle groups from csv
+    muscle_groups = {
+
+    }
 
 
 if __name__=="__main__":
+    main()
 
-    def V_ref(t):
-        V_ref = V1*t/t1
-        return V_ref
+    print("Hello")
 
-
-    # initalize my training
-    N = 10
-    V = []
-    t = np.linspace(0, t1, N)
-    V_ref = V_ref(t)
-
-    # input
-    noise = np.random.normal(0,10,t.shape)
-    V = V_ref + noise
-
-    plt.scatter(t, V)
-    plt.plot(t, V_ref)
-    plt.show()
 
 
 

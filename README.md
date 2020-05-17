@@ -12,14 +12,14 @@ The terms that will be used in this setting.
 ### Medical Terms
 According to wikipedia is variables to reach the goals of strengh training
 
-#### Volume
-In medical industry is volume defined as total set for a given muscle, which does not make sense since volume is a term defined as space. 
+- Volume
+    In medical industry is volume defined as total set for a given muscle, which does not make sense since volume is a term defined as space. 
 
-#### Intensity
-Intensity will be defined as the weight from a certain prosentage of a given estimated max weight (1RM). I am happy with this definition
+- Intensity
+    Intensity will be defined as the weight from a certain prosentage of a given estimated max weight (1RM). I am happy with this definition
 
-#### Frequenzy
-Frequenzy is in medical term defined as "exercises per week", but that is a poor statement since increasing frequenzy does not actual meaning increasing total load and does not necessarly help you increase strength. 
+- Frequenzy
+    Frequenzy is in medical term defined as "exercises per week", but that is a poor statement since increasing frequenzy does not actual meaning increasing total load and does not necessarly help you increase strength. 
 
 To be able to get statistical advantage is it therefore necessarry to generalize the terms so it is possible to do any calculations at all.
 

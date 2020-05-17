@@ -39,3 +39,8 @@ The clients ability to produce power.
 One of the major issues is that it is necessarly to introduce a relation inbetween Power and Intensity for being able to successfully produce a training program. Obviously is the training goal dependent on intensity which will affect the total power produces, therefore is it interesting to define the factor dP/dI to identify  and variance dI/dt and mue = I_avg for determining the intensity variation for the goal of the client. 
 
 
+
+
+
+#Sources
+https://medium.com/@SandCResearch

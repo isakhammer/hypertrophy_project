@@ -6,21 +6,118 @@ import configparser
 import os
 
 
-class MuscleGroup:
+# class MuscleGroup:
 
-    def __init__(self, recovery_rate):
-        self.current_day = 0
-        self.prev_workout_day = 0
-        self.prev_fatigue = 0
-        self.recovery_rate = recovery_rate
+#     def __init__(self, recovery_rate, stimulated_reps):
+#         self.current_day = 0
+#         self.prev_workout_day = 0
+#         self.prev_fatigue = 0
+#         self.recovery_rate = recovery_rate
+#         self.sr_log = None
 
-    def update(self, stimulated_reps):
-        self.prev_workout_day = self.current_day
-        self.prev_fatigue += self.compute_fatigue() + stimulated_reps
+#     def update(self, stimulated_reps):
+#         self.prev_workout_day = self.current_day
+#         self.prev_fatigue += self.compute_fatigue() + stimulated_reps
 
-    def compute_fatigue(self):
-        fatigue = self.prev_fatigue*np.exp(-(self.current_day - self.prev_workout_day)*self.recovery_rate)
-        return fatigue
+#     def compute_fatigue(self):
+#         return fatigue
+
+def fatigue( pars, sr_log):
+
+    """
+    input:
+    pars:     dict of all parameters
+    sr_log:   imported stimulated reps [day, squat, deadlift, pullup, bench]
+
+    """
+    rec_rates = pars["rec_rates"]
+    rec_rates = np.array([
+                rec_rates["quad"],
+                rec_rates["ham"],
+                rec_rates["pec"],
+                rec_rates["abs"],
+                rec_rates["bi"] ,
+                rec_rates["tri"],
+                rec_rates["lat"],
+                rec_rates["calf"]
+                ])
+
+
+    sr_muscle_group_log = compute_sr_mg_log(sr_log, pars)
+
+
+    # time interval
+    N = 100
+    t_start = 0
+    t_end = np.amax(sr_muscle_group_log[:,0])
+    t_interval = np.linspace(t_start, t_end, N)
+
+    # fatigue
+    n_groups = 8
+    f = np.zeros(time_iterations, n_groups + 1)
+    f[:,0] = t_interval
+
+    # Workout number j
+    j_sr = 0
+    f_j_sr = np.zeros(n_groups)
+    t_j_sr = 0
+
+
+    for i in range(time_iterations):
+        t_i = t_interval[i]
+
+        # saving fatigue at previous workout
+        if j_sr < sr_muscle_group_log.shape[0] and sr_muscle_group_log[j_sr, 0] < t_i:
+            f[i, 1:] += sr_muscle_group_log[j_sr, 1:]
+            f_j_sr= f[i, :]
+            t_j_sr =  f_j_sr[0]
+            j_sr += 1
+
+        f[i+1, 1:] = f_j_sr[1:]*np.exp(-(t_i - t_j_sr)*rec_rates)
+
+    return f
+
+
+
+def compute_sr_mg_log(sr_log, pars):
+
+    """
+    input:
+    pars: dict of all parameters
+    sr_log:   imported stimulated reps [day, squat, deadlift, pullup, bench]
+
+    """
+
+    # time
+    N_sr = sr_log.shape[0]
+
+    # exercise
+    sr_ex = sr_log[:,1:]
+    m_sr_ex = sr_ex.shape[1]
+
+    # muscle group
+    m_sr_mg = 8
+    sr_mg = np.zeros((N_sr, m_sr_mg) )
+
+    # fill transformation matrix
+    #T_mg_ex =  np.zeros((m_sr_ex, m_sr_mg))
+    ex = pars["ex"]
+
+    T_mg_ex = np.array([
+                        [ex["quad"],ex["bench"],ex["bench"],ex["bench"]],
+                        [ex["quad"],ex["bench"],ex["bench"],ex["bench"]],
+                        [ex["quad"],ex["bench"],ex["bench"],ex["bench"]],
+                        [ex["quad"],ex["bench"],ex["bench"],ex["bench"]],
+                        [ex["quad"],ex["bench"],ex["bench"],ex["bench"]]
+
+                        ])
+
+
+    # debug
+    #exit()
+
+
+    return sr_mg
 
 
 def load_params( file_paths ):
@@ -32,17 +129,19 @@ def load_params( file_paths ):
         raise ValueError('Specified config file does not exist or is empty!')
 
     pars = {}
-    recovery_rates = json.loads(parser.get('RECOVERY_OPTIONS', 'recovery_rates'))
+    rec_rates = json.loads(parser.get('RECOVERY_OPTIONS', 'recovery_rates'))
+    pars["rec_rates"] = rec_rates
 
-    pars["recovery_rates"] = recovery_rates
+    print("rec_rates", rec_rates)
 
-    exercises = {}
-    exercises['squat'] = json.loads(parser.get('EXERCISE_OPTIONS', 'squat'))
-    exercises['deadlift'] = json.loads(parser.get('EXERCISE_OPTIONS', 'deadlift'))
-    exercises['bench'] = json.loads(parser.get('EXERCISE_OPTIONS', 'bench'))
-    exercises['pullup'] = json.loads(parser.get('EXERCISE_OPTIONS', 'pullup'))
 
-    pars["exercises"] = exercises
+    ex = {}
+    ex['squat'] = json.loads(parser.get('EXERCISE_OPTIONS', 'squat'))
+    ex['deadlift'] = json.loads(parser.get('EXERCISE_OPTIONS', 'deadlift'))
+    ex['bench'] = json.loads(parser.get('EXERCISE_OPTIONS', 'bench'))
+    ex['pullup'] = json.loads(parser.get('EXERCISE_OPTIONS', 'pullup'))
+
+    pars["ex"] = ex
     return pars
 
 def import_log( file_paths: dict) -> np.ndarray:
@@ -51,7 +150,7 @@ def import_log( file_paths: dict) -> np.ndarray:
     #day;squat;deadlift;pullup;bench
 
     Outputs:
-    data:   imported rir data [day, squat, deadlift, pullup, bench]
+    sr_log:   imported stimulated reps [day, squat, deadlift, pullup, bench]
     """
 
     def skipper(fname):
@@ -81,14 +180,14 @@ def import_log( file_paths: dict) -> np.ndarray:
         raise IOError(file_paths["rir_log"] + " cannot be read!")
 
     # assemble to a single array
-    rir_log = np.column_stack((day,
+    sr_log = np.column_stack((day,
                                 squat,
                                 deadlift,
                                 pullup,
                                 bench
                                 ))
 
-    return rir_log
+    return sr_log
 
 
 def initalize_muscle_groups(pars):
@@ -106,37 +205,21 @@ def initalize_muscle_groups(pars):
     return muscle_groups
 
 
-def compute_muscle_group_fatigue(exercise, rir_log):
-    """
-    input:
-    exercises: double dict of all exercise info
-    rir_log: array of all workouts so far
-
-    """
-    n_groups = 8
-    N = 100
-    fatigue = np.zeros((N, n_groups))
 
 
 
 
 
 if __name__=="__main__":
-    def load_file_paths():
-        # load parameters
-        file_paths = {}
-        file_paths["module"] = os.path.dirname(os.path.abspath(__file__))
-        file_paths["params"] = os.path.join(file_paths["module"], "params.ini")
-        file_paths["rir_log"] = os.path.join(file_paths["module"],"rir_log.csv")
-        return file_paths
+    # load parameters
+    file_paths = {}
+    file_paths["module"] = os.path.dirname(os.path.abspath(__file__))
+    file_paths["params"] = os.path.join(file_paths["module"], "params.ini")
+    file_paths["rir_log"] = os.path.join(file_paths["module"],"rir_log.csv")
 
-    file_paths = load_file_paths()
     pars = load_params(file_paths)
-    rir_log = import_log(file_paths)
-    muscle_groups = initalize_muscle_groups(pars)
-
-    # insert rir fatigue
-    exercise_items= pars["exercises"].items()
+    sr_log = import_log(file_paths)
+    fatigue(pars, sr_log)
 
 
 

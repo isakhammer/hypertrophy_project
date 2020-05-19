@@ -1,10 +1,10 @@
 # Hypertrophy project
 
-Project supposed to maximize hypertrophy based on calculating muscle fatigue based on using RIR (reps in recovery) as a measurement to compute load on muscle. Since each muscle group has different recover rates will this be accounted for. 
+Project supposed to maximize hypertrophy based on using RIR (reps in recovery) as a measurement of muscle fatigue and invidual recover rates to account for total recover time.  
 
 
 
 
 
-#Sources
+# Sources
 https://medium.com/@SandCResearch

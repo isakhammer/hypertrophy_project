@@ -8,7 +8,7 @@ import os
 
 class MuscleGroup:
 
-    def __init__(self, recovery_rate, start_fatigue):
+    def __init__(self, recovery_rate):
         self.current_day = 0
         self.prev_workout_day = 0
         self.prev_fatigue = 0
@@ -32,9 +32,9 @@ def load_params( file_paths ):
         raise ValueError('Specified config file does not exist or is empty!')
 
     pars = {}
-    recovery_rate = json.loads(parser.get('RECOVERY_OPTIONS', 'recovery_rate'))
+    recovery_rates = json.loads(parser.get('RECOVERY_OPTIONS', 'recovery_rates'))
 
-    pars["recovery_rate"] = recovery_rate
+    pars["recovery_rates"] = recovery_rates
 
     exercises = {}
     exercises['squat'] = json.loads(parser.get('EXERCISE_OPTIONS', 'squat'))
@@ -81,14 +81,42 @@ def import_log( file_paths: dict) -> np.ndarray:
         raise IOError(file_paths["rir_log"] + " cannot be read!")
 
     # assemble to a single array
-    rir_data = np.column_stack((day,
+    rir_log = np.column_stack((day,
                                 squat,
                                 deadlift,
                                 pullup,
                                 bench
                                 ))
 
-    return rir_data
+    return rir_log
+
+
+def initalize_muscle_groups(pars):
+    recovery_rates = pars["recovery_rates"]
+    muscle_groups = {}
+    muscle_groups["quad"]   = MuscleGroup(     recovery_rates["quad"])
+    muscle_groups["ham"]    = MuscleGroup(     recovery_rates["ham"])
+    muscle_groups["pec"]    = MuscleGroup(     recovery_rates["pec"])
+    muscle_groups["abs"]    = MuscleGroup(     recovery_rates["abs"])
+    muscle_groups["bi"]     = MuscleGroup(     recovery_rates["bi"])
+    muscle_groups["tri"]    = MuscleGroup(     recovery_rates["tri"])
+    muscle_groups["lat"]    = MuscleGroup(     recovery_rates["lat"])
+    muscle_groups["calf"]   = MuscleGroup(     recovery_rates["calf"])
+
+    return muscle_groups
+
+
+def compute_muscle_group_fatigue(exercise, rir_log):
+    """
+    input:
+    exercises: double dict of all exercise info
+    rir_log: array of all workouts so far
+
+    """
+    n_groups = 8
+    N = 100
+    fatigue = np.zeros((N, n_groups))
+
 
 
 
@@ -104,8 +132,13 @@ if __name__=="__main__":
 
     file_paths = load_file_paths()
     pars = load_params(file_paths)
-    rir_data = import_log(file_paths)
-    print(rir_data)
+    rir_log = import_log(file_paths)
+    muscle_groups = initalize_muscle_groups(pars)
+
+    # insert rir fatigue
+    exercise_items= pars["exercises"].items()
+
+
 
 
 

@@ -88,36 +88,48 @@ def compute_sr_mg_log(sr_log, pars):
 
     """
 
-    # time
-    N_sr = sr_log.shape[0]
+    # initalize transformation matrix
+    def init_opt(ex_opt):
+        opt = [
+            ex_opt["quad"],
+            ex_opt["ham"],
+            ex_opt["abs"],
+            ex_opt["pec"],
+            ex_opt["bi"],
+            ex_opt["tri"],
+            ex_opt["lat"],
+            ex_opt["calf"]
+        ]
+        return opt
 
-    # exercise
-    sr_ex = sr_log[:,1:]
-    m_sr_ex = sr_ex.shape[1]
-
-    # muscle group
-    m_sr_mg = 8
-    sr_mg = np.zeros((N_sr, m_sr_mg) )
-
-    # fill transformation matrix
-    #T_mg_ex =  np.zeros((m_sr_ex, m_sr_mg))
-    ex = pars["ex"]
+    ex_opts = pars["ex"]
+    squat    = init_opt(ex_opts["squat"])
+    deadlift = init_opt(ex_opts["deadlift"])
+    bench    = init_opt(ex_opts["bench"])
+    pullup   = init_opt(ex_opts["pullup"])
 
     T_mg_ex = np.array([
-                        [ex["quad"],ex["bench"],ex["bench"],ex["bench"]],
-                        [ex["quad"],ex["bench"],ex["bench"],ex["bench"]],
-                        [ex["quad"],ex["bench"],ex["bench"],ex["bench"]],
-                        [ex["quad"],ex["bench"],ex["bench"],ex["bench"]],
-                        [ex["quad"],ex["bench"],ex["bench"],ex["bench"]]
-
+                    squat,
+                    deadlift,
+                    bench,
+                    pullup
                         ])
 
+    # exercise
+    t_sr = sr_log[:, 0]
+    sr_ex = sr_log[:,1:]
+
+    print(sr_ex.shape, T_mg_ex.shape)
+    sr_mg = np.multiply(sr_ex, T_mg_ex)
+
+    # m_sr_ex = 4
+    # # muscle group
+    # m_sr_mg = 8
+    # sr_mg = np.zeros((N_sr, m_sr_mg) )
 
     # debug
-    #exit()
-
-
-    return sr_mg
+    exit()
+    return None
 
 
 def load_params( file_paths ):
@@ -131,9 +143,6 @@ def load_params( file_paths ):
     pars = {}
     rec_rates = json.loads(parser.get('RECOVERY_OPTIONS', 'recovery_rates'))
     pars["rec_rates"] = rec_rates
-
-    print("rec_rates", rec_rates)
-
 
     ex = {}
     ex['squat'] = json.loads(parser.get('EXERCISE_OPTIONS', 'squat'))

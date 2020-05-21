@@ -8,3 +8,4 @@ Project supposed to maximize hypertrophy based on using RIR (reps in recovery) a
 
 # Sources
 https://medium.com/@SandCResearch
+https://www.instagram.com/p/BrhZ9-UAE4D/

@@ -6,7 +6,7 @@ import configparser
 import os
 
 
-def compute_fatigue( pars, sr_mg_log):
+def compute_fatigue( sr_mg_log: np.ndarray, pars: dict ) -> np.ndarray:
 
     """
     input:
@@ -229,8 +229,7 @@ if __name__=="__main__":
     pars = load_params(file_paths)
     sr_log = import_log(file_paths)
     sr_mg_log = compute_sr_mg_log(sr_log, pars)
-
-    f = compute_fatigue(pars, sr_mg_log)
+    f = compute_fatigue(sr_mg_log, pars)
 
     plt.plot(f[:,0],f[:,1] )
     plt.show()

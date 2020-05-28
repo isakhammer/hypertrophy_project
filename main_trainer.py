@@ -6,22 +6,6 @@ import configparser
 import os
 
 
-# class MuscleGroup:
-
-#     def __init__(self, recovery_rate, stimulated_reps):
-#         self.current_day = 0
-#         self.prev_workout_day = 0
-#         self.prev_fatigue = 0
-#         self.recovery_rate = recovery_rate
-#         self.sr_log = None
-
-#     def update(self, stimulated_reps):
-#         self.prev_workout_day = self.current_day
-#         self.prev_fatigue += self.compute_fatigue() + stimulated_reps
-
-#     def compute_fatigue(self):
-#         return fatigue
-
 def fatigue( pars, sr_log):
 
     """
@@ -196,25 +180,6 @@ def import_log( file_paths: dict) -> np.ndarray:
                                 ))
 
     return sr_log
-
-
-def initalize_muscle_groups(pars):
-    recovery_rates = pars["recovery_rates"]
-    muscle_groups = {}
-    muscle_groups["quad"]   = MuscleGroup(     recovery_rates["quad"])
-    muscle_groups["ham"]    = MuscleGroup(     recovery_rates["ham"])
-    muscle_groups["pec"]    = MuscleGroup(     recovery_rates["pec"])
-    muscle_groups["abs"]    = MuscleGroup(     recovery_rates["abs"])
-    muscle_groups["bi"]     = MuscleGroup(     recovery_rates["bi"])
-    muscle_groups["tri"]    = MuscleGroup(     recovery_rates["tri"])
-    muscle_groups["lat"]    = MuscleGroup(     recovery_rates["lat"])
-    muscle_groups["calf"]   = MuscleGroup(     recovery_rates["calf"])
-
-    return muscle_groups
-
-
-
-
 
 
 

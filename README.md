@@ -1,6 +1,6 @@
 # Hypertrophy project
 
-Project supposed to maximize hypertrophy based on using stimulated as a measurement of muscle fatigue and specific muscle recovery rates.  
+Project supposed to maximize hypertrophy based on using stimulated reps as a measurement of muscle fatigue and recovery.  
 
 
 

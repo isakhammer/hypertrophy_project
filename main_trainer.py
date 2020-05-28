@@ -182,6 +182,43 @@ def import_log( file_paths: dict) -> np.ndarray:
 
 
 
+def plot(        f:         np.ndarray,
+                 sr_log:    np.ndarray,
+                 sr_mg_log: np.ndarray):
+    """
+    Outputs:
+    sr_log:   imported stimulated reps [day, squat, deadlift, pullup, bench]
+    """
+
+    f_t       = f[:, 0]
+    f_quad    = f[:, 1]
+    f_ham     = f[:, 2]
+    f_abdom   = f[:, 3]
+    f_pec     = f[:, 4]
+    f_bi      = f[:, 5]
+    f_tri     = f[:, 6]
+    f_lat     = f[:, 7]
+    f_calf    = f[:, 8]
+
+    sr_mg_t       = sr_mg_log[:, 0]
+    sr_mg_quad    = sr_mg_log[:, 1]
+    sr_mg_ham     = sr_mg_log[:, 2]
+    sr_mg_abdom   = sr_mg_log[:, 3]
+    sr_mg_pec     = sr_mg_log[:, 4]
+    sr_mg_bi      = sr_mg_log[:, 5]
+    sr_mg_tri     = sr_mg_log[:, 6]
+    sr_mg_lat     = sr_mg_log[:, 7]
+    sr_mg_calf    = sr_mg_log[:, 8]
+
+
+    plt.figure("quads")
+    plt.plot(f_t, f_quad, label="fatigue" )
+    plt.scatter(sr_mg_t, sr_mg_quad, label="simulated reps")
+    plt.xlabel("t [day]")
+    plt.legend()
+    plt.show()
+
+
 if __name__=="__main__":
     # load parameters
     file_paths = {}

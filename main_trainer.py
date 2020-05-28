@@ -82,13 +82,14 @@ def fatigue( pars, sr_log):
 def compute_sr_mg_log(sr_log, pars):
 
     """
+    Compute stimulated reps for each muscle group given stimulated reps from the exercises.
+
     input:
     pars: dict of all parameters
     sr_log:   imported stimulated reps [day, squat, deadlift, pullup, bench]
 
     """
 
-    # initalize transformation matrix
     def init_opt(ex_opt):
         opt = [
             ex_opt["quad"],
@@ -102,12 +103,14 @@ def compute_sr_mg_log(sr_log, pars):
         ]
         return opt
 
+    # Arrays of how much each exercise if affecting muscle groups
     ex_opts = pars["ex"]
     squat    = init_opt(ex_opts["squat"])
     deadlift = init_opt(ex_opts["deadlift"])
     bench    = init_opt(ex_opts["bench"])
     pullup   = init_opt(ex_opts["pullup"])
 
+    # initalize transformation matrix
     T_mg_ex = np.array([
                     squat,
                     deadlift,
@@ -115,21 +118,17 @@ def compute_sr_mg_log(sr_log, pars):
                     pullup
                         ])
 
-    # exercise
+    # extract time and exercises
     t_sr = sr_log[:, 0]
     sr_ex = sr_log[:,1:]
+    sr_mg = np.dot(sr_ex, T_mg_ex)
 
-    print(sr_ex.shape, T_mg_ex.shape)
-    sr_mg = np.multiply(sr_ex, T_mg_ex)
+    # Adds time to log for muscle groups
+    sr_mg_log = np.zeros((sr_mg.shape[0], sr_mg.shape[1] + 1))
+    sr_mg_log[:, 0] = t_sr
+    sr_mg_log[:, 1:] = sr_mg
 
-    # m_sr_ex = 4
-    # # muscle group
-    # m_sr_mg = 8
-    # sr_mg = np.zeros((N_sr, m_sr_mg) )
-
-    # debug
-    exit()
-    return None
+    return sr_mg_log
 
 
 def load_params( file_paths ):

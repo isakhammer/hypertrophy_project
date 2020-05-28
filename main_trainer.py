@@ -26,37 +26,34 @@ def fatigue( pars, sr_log):
                 rec_rates["calf"]
                 ])
 
-
-    sr_muscle_group_log = compute_sr_mg_log(sr_log, pars)
-
+    sr_mg_log = compute_sr_mg_log(sr_log, pars)
 
     # time interval
     N = 100
     t_start = 0
-    t_end = np.amax(sr_muscle_group_log[:,0])
+    t_end = np.amax(sr_mg_log[:,0])
     t_interval = np.linspace(t_start, t_end, N)
 
-    # fatigue
-    n_groups = 8
-    f = np.zeros(time_iterations, n_groups + 1)
+    # number of muscle groups
+    n_mg = sr_mg_log.shape[1] - 1
+
+    f = np.zeros((N, sr_mg_log.shape[1]))
     f[:,0] = t_interval
 
-    # Workout number j
+    # initalize time and fatigue at workout j
     j_sr = 0
-    f_j_sr = np.zeros(n_groups)
+    f_j_sr = np.zeros(sr_mg_log.shape[1])
     t_j_sr = 0
 
-
-    for i in range(time_iterations):
+    for i in range(N-1):
         t_i = t_interval[i]
 
         # saving fatigue at previous workout
-        if j_sr < sr_muscle_group_log.shape[0] and sr_muscle_group_log[j_sr, 0] < t_i:
-            f[i, 1:] += sr_muscle_group_log[j_sr, 1:]
+        if j_sr < sr_mg_log.shape[0] and sr_mg_log[j_sr, 0] < t_i:
+            f[i, 1:] += sr_mg_log[j_sr, 1:]
             f_j_sr= f[i, :]
             t_j_sr =  f_j_sr[0]
             j_sr += 1
-
         f[i+1, 1:] = f_j_sr[1:]*np.exp(-(t_i - t_j_sr)*rec_rates)
 
     return f

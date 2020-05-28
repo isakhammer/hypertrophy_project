@@ -182,12 +182,18 @@ def import_log( file_paths: dict) -> np.ndarray:
 
 
 
-def plot(        f:         np.ndarray,
-                 sr_log:    np.ndarray,
-                 sr_mg_log: np.ndarray):
+def plot_fatigue(   sr_log:    np.ndarray,
+                    sr_mg_log: np.ndarray,
+                    f:         np.ndarray):
     """
-    Outputs:
-    sr_log:   imported stimulated reps [day, squat, deadlift, pullup, bench]
+
+    Inputs:
+    sr_log:   imported stimulated reps [time, squat, deadlift, pullup, bench]
+    sr_mg_log:  stimulated reps for every muscle group
+                [time, quad, ham, abs, pec, bu, tri, lat, calf ]
+    fatigue:  total fatigue on muscle groups
+                [time, quad, ham, abs, pec, bu, tri, lat, calf ]
+
     """
 
     f_t       = f[:, 0]
@@ -214,9 +220,43 @@ def plot(        f:         np.ndarray,
     plt.figure("quads")
     plt.plot(f_t, f_quad, label="fatigue" )
     plt.scatter(sr_mg_t, sr_mg_quad, label="simulated reps")
-    plt.xlabel("t [day]")
+    plt.xlabel("time [day]")
+    plt.title("quads")
     plt.legend()
-    plt.show()
+
+def plot_sr(        sr_log:    np.ndarray,
+                    sr_mg_log: np.ndarray):
+    """
+
+    Inputs:
+    sr_log:   imported stimulated reps [time, squat, deadlift, pullup, bench]
+    sr_mg_log:  stimulated reps for every muscle group
+                [time, quad, ham, abs, pec, bu, tri, lat, calf ]
+
+    """
+    sr_t        = sr_mg_log[:, 0]
+    sr_squat    = sr_log[:, 1]
+    sr_deadlift = sr_log[:, 2]
+    sr_pullup   = sr_log[:, 3]
+    sr_bench    = sr_log[:, 4]
+
+    sr_mg_t       = sr_mg_log[:, 0]
+    sr_mg_quad    = sr_mg_log[:, 1]
+    sr_mg_ham     = sr_mg_log[:, 2]
+    sr_mg_abdom   = sr_mg_log[:, 3]
+    sr_mg_pec     = sr_mg_log[:, 4]
+    sr_mg_bi      = sr_mg_log[:, 5]
+    sr_mg_tri     = sr_mg_log[:, 6]
+    sr_mg_lat     = sr_mg_log[:, 7]
+    sr_mg_calf    = sr_mg_log[:, 8]
+
+
+    plt.figure("comparison")
+    plt.plot(sr_t, sr_squat, label="sr_squat" )
+    plt.scatter(sr_mg_t, sr_mg_quad, label="sr_quads")
+    plt.xlabel("time [day]")
+    plt.title("comparison")
+    plt.legend()
 
 
 if __name__=="__main__":
@@ -231,7 +271,8 @@ if __name__=="__main__":
     sr_mg_log = compute_sr_mg_log(sr_log, pars)
     f = compute_fatigue(sr_mg_log, pars)
 
-    plt.plot(f[:,0],f[:,1] )
+    plot_fatigue(sr_log, sr_mg_log, f)
+    plot_sr(sr_log, sr_mg_log)
     plt.show()
 
 

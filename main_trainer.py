@@ -172,7 +172,7 @@ def import_log( file_paths: dict) -> np.ndarray:
         raise IOError(file_paths["sr_log"] + " cannot be read!")
 
     # assemble to a single array
-    sr_log = np.column_stack((day,
+    sr_log = np.column_stack((time,
                                 squat,
                                 deadlift,
                                 pullup,

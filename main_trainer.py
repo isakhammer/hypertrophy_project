@@ -6,12 +6,15 @@ import configparser
 import os
 
 
-def fatigue( pars, sr_log):
+def compute_fatigue( pars, sr_mg_log):
 
     """
     input:
-    pars:     dict of all parameters
-    sr_log:   imported stimulated reps [day, squat, deadlift, pullup, bench]
+    pars:       dict of all parameters.
+    sr_mg_log:  stimulated reps for every muscle group
+                [time, quad, ham, abs, pec, bu, tri, lat, calf ]
+    fatigue:  total fatigue on muscle groups
+                [time, quad, ham, abs, pec, bu, tri, lat, calf ]
 
     """
     rec_rates = pars["rec_rates"]
@@ -26,7 +29,6 @@ def fatigue( pars, sr_log):
                 rec_rates["calf"]
                 ])
 
-    sr_mg_log = compute_sr_mg_log(sr_log, pars)
 
     # time interval
     N = 100
@@ -189,7 +191,12 @@ if __name__=="__main__":
 
     pars = load_params(file_paths)
     sr_log = import_log(file_paths)
-    fatigue(pars, sr_log)
+    sr_mg_log = compute_sr_mg_log(sr_log, pars)
+
+    f = compute_fatigue(pars, sr_mg_log)
+
+    plt.plot(f[:,0],f[:,1] )
+    plt.show()
 
 
 

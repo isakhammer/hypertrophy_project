@@ -291,6 +291,22 @@ def plot_sr(        sr_log:    np.ndarray,
     plt.title("comparison")
     plt.legend()
 
+def compute_fatigue_avg(f:      np.ndarray,
+                        pars:   dict) -> np.ndarray:
+
+    t_moving_avg = pars["wo_opt"]["t_moving_avg"]
+    f_avg = np.zeros(f.shape)
+    f_avg[:,0] = f[:,0]
+
+    for i in range(1, f.shape[0]):
+        t1 = f[i,0]
+        t0 = max(f[0,0], t1 - t_moving_avg)
+        k = (np.abs(f[:i,0] - t0)).argmin()
+        f_avg[i,1:] = np.mean(f[k:i,1:], axis=0)
+        print(f_avg[i, 1])
+
+    return f_avg
+
 
 if __name__=="__main__":
     # file paths
@@ -310,10 +326,18 @@ if __name__=="__main__":
 
     # compute muscle fatigue
     f = compute_fatigue(sr_mg_log, pars)
+    f_avg = compute_fatigue_avg(f, pars)
 
     # plotting
     plot_fatigue(sr_log, sr_mg_log, f, pars)
     plot_sr(sr_log, sr_mg_log)
+
+    plt.close("all")
+    plt.figure("f")
+    plt.plot(f_avg[:,0], f_avg[:,1], label="f_avg")
+    plt.plot(f[:,0], f[:,1], label="f")
+    plt.legend()
+
     plt.show()
 
 

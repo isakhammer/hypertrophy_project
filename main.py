@@ -186,7 +186,8 @@ def import_log( file_paths: dict) -> np.ndarray:
 
 def plot_fatigue(   sr_log:    np.ndarray,
                     sr_mg_log: np.ndarray,
-                    f:         np.ndarray):
+                    f:         np.ndarray,
+                    pars:      dict):
     """
 
     Inputs:
@@ -198,6 +199,7 @@ def plot_fatigue(   sr_log:    np.ndarray,
 
     """
 
+    # fatigue
     f_t       = f[:, 0]
     f_quad    = f[:, 1]
     f_ham     = f[:, 2]
@@ -208,6 +210,32 @@ def plot_fatigue(   sr_log:    np.ndarray,
     f_lat     = f[:, 7]
     f_calf    = f[:, 8]
 
+    # helper array
+    ones = np.ones(f_t.shape)
+
+    # desired fatigue
+    f_d         = pars["f_d"]
+    f_d_quad    = ones*f_d["quad"]
+    f_d_ham     = ones*f_d["ham"]
+    f_d_abdom   = ones*f_d["abs"]
+    f_d_pec     = ones*f_d["pec"]
+    f_d_bi      = ones*f_d["bi"]
+    f_d_tri     = ones*f_d["tri"]
+    f_d_lat     = ones*f_d["lat"]
+    f_d_calf    = ones*f_d["calf"]
+
+    # max fatigue
+    f_max         = pars["f_max"]
+    f_max_quad    = ones*f_max["quad"]
+    f_max_ham     = ones*f_max["ham"]
+    f_max_abdom   = ones*f_max["abs"]
+    f_max_pec     = ones*f_max["pec"]
+    f_max_bi      = ones*f_max["bi"]
+    f_max_tri     = ones*f_max["tri"]
+    f_max_lat     = ones*f_max["lat"]
+    f_max_calf    = ones*f_max["calf"]
+
+    # stimulated reps for muscle groups
     sr_mg_t       = sr_mg_log[:, 0]
     sr_mg_quad    = sr_mg_log[:, 1]
     sr_mg_ham     = sr_mg_log[:, 2]
@@ -221,6 +249,8 @@ def plot_fatigue(   sr_log:    np.ndarray,
 
     plt.figure("quads")
     plt.plot(f_t, f_quad, label="fatigue" )
+    plt.plot(f_t, f_d_quad, label="desired fatigue" )
+    plt.plot(f_t, f_max_quad, label="max fatigue" )
     plt.scatter(sr_mg_t, sr_mg_quad, label="simulated reps")
     plt.xlabel("time [day]")
     plt.title("quads")
@@ -281,7 +311,7 @@ if __name__=="__main__":
     f = compute_fatigue(sr_mg_log, pars)
 
     # plotting
-    plot_fatigue(sr_log, sr_mg_log, f)
+    plot_fatigue(sr_log, sr_mg_log, f, pars)
     plot_sr(sr_log, sr_mg_log)
     plt.show()
 

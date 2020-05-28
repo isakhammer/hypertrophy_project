@@ -303,7 +303,6 @@ def compute_fatigue_avg(f:      np.ndarray,
         t0 = max(f[0,0], t1 - t_moving_avg)
         k = (np.abs(f[:i,0] - t0)).argmin()
         f_avg[i,1:] = np.mean(f[k:i,1:], axis=0)
-        print(f_avg[i, 1])
 
     return f_avg
 

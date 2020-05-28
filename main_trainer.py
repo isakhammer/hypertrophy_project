@@ -31,7 +31,7 @@ def compute_fatigue( sr_mg_log: np.ndarray, pars: dict ) -> np.ndarray:
 
 
     # time interval
-    N = 100
+    N = 1000
     t_start = 0
     t_end = np.amax(sr_mg_log[:,0])
     t_interval = np.linspace(t_start, t_end, N)
@@ -261,17 +261,25 @@ def plot_sr(        sr_log:    np.ndarray,
 
 
 if __name__=="__main__":
-    # load parameters
+    # file paths
     file_paths = {}
     file_paths["module"] = os.path.dirname(os.path.abspath(__file__))
     file_paths["params"] = os.path.join(file_paths["module"], "params.ini")
     file_paths["sr_log"] = os.path.join(file_paths["module"],"sr_log.csv")
 
+    # parameters
     pars = load_params(file_paths)
+
+    # load stimulated reps log for exercises
     sr_log = import_log(file_paths)
+
+    # transform stimulated reps from ecercise to muscle group
     sr_mg_log = compute_sr_mg_log(sr_log, pars)
+
+    # compute muscle fatigue
     f = compute_fatigue(sr_mg_log, pars)
 
+    # plotting
     plot_fatigue(sr_log, sr_mg_log, f)
     plot_sr(sr_log, sr_mg_log)
     plt.show()

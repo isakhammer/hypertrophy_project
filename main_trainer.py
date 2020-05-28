@@ -69,7 +69,7 @@ def compute_sr_mg_log(sr_log, pars):
 
     input:
     pars: dict of all parameters
-    sr_log:   imported stimulated reps [day, squat, deadlift, pullup, bench]
+    sr_log:   imported stimulated reps [time, squat, deadlift, pullup, bench]
 
     """
 
@@ -138,30 +138,31 @@ def load_params( file_paths ):
 def import_log( file_paths: dict) -> np.ndarray:
     """
     Imports file path of raw data with csv-format containing:
-    #day;squat;deadlift;pullup;bench
+    #time;squat;deadlift;pullup;bench
 
     Outputs:
-    sr_log:   imported stimulated reps [day, squat, deadlift, pullup, bench]
+    sr_log:   imported stimulated reps [time, squat, deadlift, pullup, bench]
     """
-
-    def skipper(fname):
+    def skipper(fname, header=False):
         """
-        Function for skipping header in csv
+        Function for skipping header
 
         """
         with open(fname) as fin:
-            no_comments = (line for line in fin if not line.lstrip().startswith('#'))
-            next(no_comments, None) # skip header
-            for row in no_comments:
-                yield row
+            #no_comments = (line for line in fin if not line.lstrip().startswith('#'))
+            if header:
+                next(fin, None) # skip header
+                for row in fin:
+                    yield row
+
 
 
     # load data from csv file
-    csv_data_tmp = np.loadtxt(skipper(file_paths["sr_log"]), delimiter=';')
+    csv_data_tmp = np.loadtxt(skipper(file_paths["sr_log"], header=True), delimiter=';')
 
-    # get coords and track widths out of array
+    # get sr log out of array.
     if np.shape(csv_data_tmp)[1] == 5:
-        day         = csv_data_tmp[:,0]
+        time         = csv_data_tmp[:,0]
         squat       = csv_data_tmp[:,1]
         deadlift    = csv_data_tmp[:,2]
         pullup      = csv_data_tmp[:,3]

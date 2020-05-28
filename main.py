@@ -6,6 +6,77 @@ import configparser
 import os
 
 
+
+def load_params( file_paths ):
+
+    # load vehicle parameter file into a "pars" dict
+    parser = configparser.ConfigParser()
+
+    if not parser.read(file_paths["params"]):
+        raise ValueError('Specified config file does not exist or is empty!')
+
+    pars = {}
+    pars["wo_opt"]     = json.loads(parser.get('SR_OPTIONS', 'wo_opt'))
+    pars["f_max"]       = json.loads(parser.get('FATIGUE_OPTIONS', 'f_max'))
+    pars["f_d"]         = json.loads(parser.get('FATIGUE_OPTIONS', 'f_d'))
+    pars["rec_rates"]   = json.loads(parser.get('FATIGUE_OPTIONS', 'rec_rates'))
+
+    ex = {}
+    ex['squat']     = json.loads(parser.get('EXERCISE_OPTIONS', 'squat'))
+    ex['deadlift']  = json.loads(parser.get('EXERCISE_OPTIONS', 'deadlift'))
+    ex['bench']     = json.loads(parser.get('EXERCISE_OPTIONS', 'bench'))
+    ex['pullup']    = json.loads(parser.get('EXERCISE_OPTIONS', 'pullup'))
+
+    pars["ex"] = ex
+    return pars
+
+def import_log( file_paths: dict) -> np.ndarray:
+    """
+    Imports file path of raw data with csv-format containing:
+    #time;squat;deadlift;pullup;bench
+
+    Outputs:
+    sr_log:   imported stimulated reps [time, squat, deadlift, pullup, bench]
+    """
+    def skipper(fname, header=False):
+        """
+        Function for skipping header
+
+        """
+        with open(fname) as fin:
+            #no_comments = (line for line in fin if not line.lstrip().startswith('#'))
+            if header:
+                next(fin, None) # skip header
+                for row in fin:
+                    yield row
+
+
+
+    # load data from csv file
+    csv_data_tmp = np.loadtxt(skipper(file_paths["sr_log"], header=True), delimiter=';')
+
+    # get sr log out of array.
+    if np.shape(csv_data_tmp)[1] == 5:
+        time         = csv_data_tmp[:,0]
+        squat       = csv_data_tmp[:,1]
+        deadlift    = csv_data_tmp[:,2]
+        pullup      = csv_data_tmp[:,3]
+        bench       = csv_data_tmp[:,4]
+
+    else:
+        raise IOError(file_paths["sr_log"] + " cannot be read!")
+
+    # assemble to a single array
+    sr_log = np.column_stack((time,
+                                squat,
+                                deadlift,
+                                pullup,
+                                bench
+                                ))
+
+    return sr_log
+
+
 def compute_fatigue( sr_mg_log: np.ndarray, pars: dict ) -> np.ndarray:
 
     """
@@ -112,76 +183,6 @@ def compute_sr_mg_log(sr_log, pars):
     sr_mg_log[:, 1:] = sr_mg
 
     return sr_mg_log
-
-
-def load_params( file_paths ):
-
-    # load vehicle parameter file into a "pars" dict
-    parser = configparser.ConfigParser()
-
-    if not parser.read(file_paths["params"]):
-        raise ValueError('Specified config file does not exist or is empty!')
-
-    pars = {}
-    pars["f_max"]       = json.loads(parser.get('FATIGUE_OPTIONS', 'f_max'))
-    pars["f_d"]         = json.loads(parser.get('FATIGUE_OPTIONS', 'f_d'))
-    pars["rec_rates"]   = json.loads(parser.get('FATIGUE_OPTIONS', 'rec_rates'))
-
-    ex = {}
-    ex['squat']     = json.loads(parser.get('EXERCISE_OPTIONS', 'squat'))
-    ex['deadlift']  = json.loads(parser.get('EXERCISE_OPTIONS', 'deadlift'))
-    ex['bench']     = json.loads(parser.get('EXERCISE_OPTIONS', 'bench'))
-    ex['pullup']    = json.loads(parser.get('EXERCISE_OPTIONS', 'pullup'))
-
-    pars["ex"] = ex
-    return pars
-
-def import_log( file_paths: dict) -> np.ndarray:
-    """
-    Imports file path of raw data with csv-format containing:
-    #time;squat;deadlift;pullup;bench
-
-    Outputs:
-    sr_log:   imported stimulated reps [time, squat, deadlift, pullup, bench]
-    """
-    def skipper(fname, header=False):
-        """
-        Function for skipping header
-
-        """
-        with open(fname) as fin:
-            #no_comments = (line for line in fin if not line.lstrip().startswith('#'))
-            if header:
-                next(fin, None) # skip header
-                for row in fin:
-                    yield row
-
-
-
-    # load data from csv file
-    csv_data_tmp = np.loadtxt(skipper(file_paths["sr_log"], header=True), delimiter=';')
-
-    # get sr log out of array.
-    if np.shape(csv_data_tmp)[1] == 5:
-        time         = csv_data_tmp[:,0]
-        squat       = csv_data_tmp[:,1]
-        deadlift    = csv_data_tmp[:,2]
-        pullup      = csv_data_tmp[:,3]
-        bench       = csv_data_tmp[:,4]
-
-    else:
-        raise IOError(file_paths["sr_log"] + " cannot be read!")
-
-    # assemble to a single array
-    sr_log = np.column_stack((time,
-                                squat,
-                                deadlift,
-                                pullup,
-                                bench
-                                ))
-
-    return sr_log
-
 
 
 def plot_fatigue(   sr_log:    np.ndarray,

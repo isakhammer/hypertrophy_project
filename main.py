@@ -123,14 +123,15 @@ def load_params( file_paths ):
         raise ValueError('Specified config file does not exist or is empty!')
 
     pars = {}
-    rec_rates = json.loads(parser.get('RECOVERY_OPTIONS', 'recovery_rates'))
-    pars["rec_rates"] = rec_rates
+    pars["f_max"]       = json.loads(parser.get('FATIGUE_OPTIONS', 'f_max'))
+    pars["f_d"]         = json.loads(parser.get('FATIGUE_OPTIONS', 'f_d'))
+    pars["rec_rates"]   = json.loads(parser.get('FATIGUE_OPTIONS', 'rec_rates'))
 
     ex = {}
-    ex['squat'] = json.loads(parser.get('EXERCISE_OPTIONS', 'squat'))
-    ex['deadlift'] = json.loads(parser.get('EXERCISE_OPTIONS', 'deadlift'))
-    ex['bench'] = json.loads(parser.get('EXERCISE_OPTIONS', 'bench'))
-    ex['pullup'] = json.loads(parser.get('EXERCISE_OPTIONS', 'pullup'))
+    ex['squat']     = json.loads(parser.get('EXERCISE_OPTIONS', 'squat'))
+    ex['deadlift']  = json.loads(parser.get('EXERCISE_OPTIONS', 'deadlift'))
+    ex['bench']     = json.loads(parser.get('EXERCISE_OPTIONS', 'bench'))
+    ex['pullup']    = json.loads(parser.get('EXERCISE_OPTIONS', 'pullup'))
 
     pars["ex"] = ex
     return pars

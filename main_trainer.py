@@ -174,7 +174,7 @@ def import_log( file_paths: dict) -> np.ndarray:
 
 
     # load data from csv file
-    csv_data_tmp = np.loadtxt(skipper(file_paths["rir_log"]), delimiter=';')
+    csv_data_tmp = np.loadtxt(skipper(file_paths["sr_log"]), delimiter=';')
 
     # get coords and track widths out of array
     if np.shape(csv_data_tmp)[1] == 5:
@@ -185,7 +185,7 @@ def import_log( file_paths: dict) -> np.ndarray:
         bench       = csv_data_tmp[:,4]
 
     else:
-        raise IOError(file_paths["rir_log"] + " cannot be read!")
+        raise IOError(file_paths["sr_log"] + " cannot be read!")
 
     # assemble to a single array
     sr_log = np.column_stack((day,
@@ -223,7 +223,7 @@ if __name__=="__main__":
     file_paths = {}
     file_paths["module"] = os.path.dirname(os.path.abspath(__file__))
     file_paths["params"] = os.path.join(file_paths["module"], "params.ini")
-    file_paths["rir_log"] = os.path.join(file_paths["module"],"rir_log.csv")
+    file_paths["sr_log"] = os.path.join(file_paths["module"],"sr_log.csv")
 
     pars = load_params(file_paths)
     sr_log = import_log(file_paths)

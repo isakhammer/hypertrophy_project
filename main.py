@@ -7,7 +7,14 @@ import os
 
 
 
-def load_params( file_paths ):
+def load_params( file_paths: dict ) -> dict:
+    """
+
+    input:
+    file_paths: dictionary of all file paths in the module
+    outputs:
+    pars: dictionary of all paramters listed in params.ini
+    """
 
     # load vehicle parameter file into a "pars" dict
     parser = configparser.ConfigParser()
@@ -77,13 +84,19 @@ def import_log( file_paths: dict) -> np.ndarray:
     return sr_log
 
 
-def compute_fatigue( sr_mg_log: np.ndarray, pars: dict ) -> np.ndarray:
+def compute_fatigue(sr_mg_log: np.ndarray,
+                    f0: np.ndarray,
+                    pars: dict ) -> np.ndarray:
 
     """
     input:
-    pars:       dict of all parameters.
+    f0:         initial start fatigue at sr_mg_log for every muscle group
+                [time, quad, ham, abs, pec, bu, tri, lat, calf ]
     sr_mg_log:  stimulated reps for every muscle group
                 [time, quad, ham, abs, pec, bu, tri, lat, calf ]
+    pars:       dict of all parameters.
+
+    output:
     fatigue:  total fatigue on muscle groups
                 [time, quad, ham, abs, pec, bu, tri, lat, calf ]
 
@@ -118,6 +131,11 @@ def compute_fatigue( sr_mg_log: np.ndarray, pars: dict ) -> np.ndarray:
     f_j_sr = np.zeros(sr_mg_log.shape[1])
     t_j_sr = 0
 
+    # Set inital start fatigue
+    if f0 is not None:
+        f_j_sr[0,:] = f0
+
+
     for i in range(N-1):
         t_i = t_interval[i]
 
@@ -133,7 +151,8 @@ def compute_fatigue( sr_mg_log: np.ndarray, pars: dict ) -> np.ndarray:
 
 
 
-def compute_sr_mg_log(sr_log, pars):
+def compute_sr_mg_log(sr_log: np.ndarray,
+                      pars: dict):
 
     """
     Compute stimulated reps for each muscle group given stimulated reps from the exercises.
@@ -315,17 +334,25 @@ if __name__=="__main__":
     file_paths["sr_log"] = os.path.join(file_paths["module"],"sr_log.csv")
 
     # parameters
-    pars = load_params(file_paths)
+    pars = load_params(file_paths=file_paths)
 
     # load stimulated reps log for exercises
     sr_log = import_log(file_paths)
 
     # transform stimulated reps from ecercise to muscle group
-    sr_mg_log = compute_sr_mg_log(sr_log, pars)
+    sr_mg_log = compute_sr_mg_log(sr_log=sr_log,
+                                  pars=pars)
 
     # compute muscle fatigue
-    f = compute_fatigue(sr_mg_log, pars)
-    f_avg = compute_fatigue_avg(f, pars)
+    f = compute_fatigue(sr_mg_log=sr_mg_log,
+                        f0=None,
+                        pars=pars)
+
+    f_avg = compute_fatigue_avg(f=f,
+                                pars=pars)
+
+    # compute desired fatigue
+#    sr_d = compute_sr_d(sr_d, pars)
 
     # plotting
     plot_fatigue(sr_log, sr_mg_log, f, pars)

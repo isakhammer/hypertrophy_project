@@ -325,6 +325,43 @@ def compute_fatigue_avg(f:      np.ndarray,
 
     return f_avg
 
+def compute_sr_d(f0, pars):
+    wo_opt = pars["wo_opt"]
+    sr_max = 20
+    N_ex=4
+    N_t=wo_opt["t_horizon"]/wo_opt["t_freq"]
+
+    f_best = np.inf
+    sr_log_best = None
+
+    for i in range(1000):
+        # generate sr_log
+        sr_log = np.random.randint(0 , sr_max, (N_t,  N_ex + 1 ))
+        sr_log[:,0] = np.linspace(0, wo_opt["t_horizon"], N_t)
+
+        # transform stimulated reps from exercise to muscle group
+        sr_mg_log = compute_sr_mg_log(sr_log=sr_log,
+                                      pars=pars)
+
+        # compute muscle fatigue
+        f = compute_fatigue(sr_mg_log=sr_mg_log,
+                            f0=None,
+                            pars=pars)
+
+        f_avg = compute_fatigue_avg(f=f,
+                                    pars=pars)
+
+        if np.norm(f_avg - f_d) < np.norm(f_avg - f_d):
+            f_best = f_best
+            sr_log_best = sr_log_best
+
+
+    return sr_log_best
+
+
+
+
+
 
 if __name__=="__main__":
     # file paths
@@ -352,7 +389,7 @@ if __name__=="__main__":
                                 pars=pars)
 
     # compute desired fatigue
-#    sr_d = compute_sr_d(sr_d, pars)
+    sr_d = compute_sr_d(sr_d, pars)
 
     # plotting
     plot_fatigue(sr_log, sr_mg_log, f, pars)

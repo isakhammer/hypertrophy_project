@@ -324,14 +324,43 @@ def compute_fatigue_avg(f:      np.ndarray,
 
     return f_avg
 
+def align_fatigue_pars(pars: dict):
+    # desired fatigue
+    f_d_pars = pars["f_d"]
+    f_d =   np.array([
+            f_d_pars["quad"],
+            f_d_pars["ham"],
+            f_d_pars["abs"],
+            f_d_pars["pec"],
+            f_d_pars["bi"],
+            f_d_pars["tri"],
+            f_d_pars["lat"],
+            f_d_pars["calf"]])
+
+    # desired fatigue
+    f_max_pars = pars["f_max"]
+    f_max = np.array([
+            f_max_pars["quad"],
+            f_max_pars["ham"],
+            f_max_pars["abs"],
+            f_max_pars["pec"],
+            f_max_pars["bi"],
+            f_max_pars["tri"],
+            f_max_pars["lat"],
+            f_max_pars["calf"]])
+    return f_d, f_max
+
 def compute_sr_d(f0: np.ndarray,
                  pars: dict):
+
+    f_d, f_max = align_fatigue_pars(pars = pars)
+
     wo_opt = pars["wo_opt"]
     sr_max = 20
     N_ex = 4
 
     N_t = int(wo_opt["t_horizon"]/wo_opt["t_freq"])
-    f_d = 10
+    f_d = f_d[0]
 
     sr_log = None
 

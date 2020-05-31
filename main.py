@@ -224,24 +224,6 @@ def plot_model(     sr_log:    np.ndarray,
     pars:       all imported parameters
 
     """
-    # stimulated reps in an exercise
-    sr_t        = sr_log[:, 0]
-    sr_squat    = sr_log[:, 1]
-    sr_deadlift = sr_log[:, 2]
-    sr_pullup   = sr_log[:, 3]
-    sr_bench    = sr_log[:, 4]
-
-    # stimulated reps for muscle groups
-    sr_mg_t       = sr_mg_log[:, 0]
-    sr_mg_quad    = sr_mg_log[:, 1]
-    sr_mg_ham     = sr_mg_log[:, 2]
-    sr_mg_abdom   = sr_mg_log[:, 3]
-    sr_mg_pec     = sr_mg_log[:, 4]
-    sr_mg_bi      = sr_mg_log[:, 5]
-    sr_mg_tri     = sr_mg_log[:, 6]
-    sr_mg_lat     = sr_mg_log[:, 7]
-    sr_mg_calf    = sr_mg_log[:, 8]
-
     def init_pars(t, f_pars):
         """
         function to initalize mg parameters in correct format
@@ -276,41 +258,47 @@ def plot_model(     sr_log:    np.ndarray,
     plt.rcParams["figure.figsize"] = [16,9]
 
 
-    def fatigue_subplot(t,
-                        f_ex,
-                        f_avg_ex,
-                        f_ref_ex,
-                        f_max_ex,
+    def fatigue_subplot(f_t,
+                        f_mg,
+                        f_avg_mg,
+                        f_ref_mg,
+                        f_max_mg,
+                        sr_mg_t,
+                        sr_mg,
                         name: str,
                         subplot_id: int):
 
 
         plt.subplot(subplot_id)
-        plt.plot(t, f_ex, label="fatigue" )
-        plt.plot(t, f_ref_ex, label="desired fatigue" )
-        plt.plot(t, f_max_ex, label="max fatigue" )
-        plt.plot(t, f_avg_ex, label="avg fatigue" )
+        plt.plot(f_t,       f_mg,       label="f" )
+        plt.plot(f_t,       f_ref_mg,   label="f_ref" )
+        plt.plot(f_t,       f_max_mg,   label="f_max" )
+        plt.plot(f_t,       f_avg_mg,   label="f_avg" )
+        plt.scatter(sr_mg_t,   sr_mg,   label="sr_mg", s=7, color="black")
         plt.title(name)
         plt.grid()
         plt.legend()
 
     plt.figure(name)
     plt.clf()
-    fatigue_subplot(f[:,0], f[:,1],   f_avg[:,1], f_ref[:,1],  f_max[:,1], "quad", 421)
-    fatigue_subplot(f[:,0], f[:,2],   f_avg[:,2], f_ref[:,2],  f_max[:,2],  "ham",  422)
-    fatigue_subplot(f[:,0], f[:,3],   f_avg[:,3], f_ref[:,3],  f_max[:,3],"abdom",423)
-    fatigue_subplot(f[:,0], f[:,4],   f_avg[:,4], f_ref[:,4],  f_max[:,4],  "pec",  424)
-    fatigue_subplot(f[:,0], f[:,5],   f_avg[:,5], f_ref[:,5],  f_max[:,5],   "bi",   425)
-    fatigue_subplot(f[:,0], f[:,6],   f_avg[:,6], f_ref[:,6],  f_max[:,6],  "tri",  426)
-    fatigue_subplot(f[:,0], f[:,7],   f_avg[:,7], f_ref[:,7],  f_max[:,7],  "lat",  427)
-    fatigue_subplot(f[:,0], f[:,8],   f_avg[:,8], f_ref[:,8],  f_max[:,8], "calf", 428)
+    fatigue_subplot(f[:,0], f[:,1],   f_avg[:,1], f_ref[:,1],  f_max[:,1],  sr_mg_log[:,0],  sr_mg_log[:,1], "quad",    421)
+    fatigue_subplot(f[:,0], f[:,2],   f_avg[:,2], f_ref[:,2],  f_max[:,2],  sr_mg_log[:,0],  sr_mg_log[:,2],  "ham",    422)
+    fatigue_subplot(f[:,0], f[:,3],   f_avg[:,3], f_ref[:,3],  f_max[:,3],  sr_mg_log[:,0],  sr_mg_log[:,3],"abdom",    423)
+    fatigue_subplot(f[:,0], f[:,4],   f_avg[:,4], f_ref[:,4],  f_max[:,4],  sr_mg_log[:,0],  sr_mg_log[:,4],  "pec",    424)
+    fatigue_subplot(f[:,0], f[:,5],   f_avg[:,5], f_ref[:,5],  f_max[:,5],  sr_mg_log[:,0],  sr_mg_log[:,5],   "bi",    425)
+    fatigue_subplot(f[:,0], f[:,6],   f_avg[:,6], f_ref[:,6],  f_max[:,6],  sr_mg_log[:,0],  sr_mg_log[:,6],  "tri",    426)
+    fatigue_subplot(f[:,0], f[:,7],   f_avg[:,7], f_ref[:,7],  f_max[:,7],  sr_mg_log[:,0],  sr_mg_log[:,7],  "lat",    427)
+    fatigue_subplot(f[:,0], f[:,8],   f_avg[:,8], f_ref[:,8],  f_max[:,8],  sr_mg_log[:,0],  sr_mg_log[:,8], "calf",    428)
 
-    plt.figure("squat_" + name)
-    plt.plot(sr_t, sr_squat, label="sr_squat" )
-    plt.scatter(sr_mg_t, sr_mg_quad, label="sr_quads")
-    plt.xlabel("time [day]")
-    plt.title("squat " + name)
-    plt.legend()
+    # stimulated reps in an exercise
+    # plt.figure("exercises" + name)
+    # plt.scatter(sr_log[:,0], sr_log[:,1], label="squat" )
+    # plt.scatter(sr_log[:,0], sr_log[:,2], label="deadlift" )
+    # plt.scatter(sr_log[:,0], sr_log[:,3], label="pullup" )
+    # plt.scatter(sr_log[:,0], sr_log[:,4], label="bench" )
+    # plt.xlabel("time [day]")
+    # plt.title("sr_log_" + name)
+    # plt.legend()
 
 
 def compute_fatigue_avg(f:      np.ndarray,

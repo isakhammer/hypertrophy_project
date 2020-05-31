@@ -242,64 +242,68 @@ def plot_model(     sr_log:    np.ndarray,
     sr_mg_lat     = sr_mg_log[:, 7]
     sr_mg_calf    = sr_mg_log[:, 8]
 
+    def init_pars(t, f_pars):
+        """
+        function to initalize mg parameters in correct format
+        input:
+            t:      array for time
+            f_pars: dictonary for a specific muscle attribute.
 
-    # fatigue
-    f_t       = f[:, 0]
-    f_quad    = f[:, 1]
-    f_ham     = f[:, 2]
-    f_abdom   = f[:, 3]
-    f_pec     = f[:, 4]
-    f_bi      = f[:, 5]
-    f_tri     = f[:, 6]
-    f_lat     = f[:, 7]
-    f_calf    = f[:, 8]
+        """
+        ones = np.ones(t.shape)
+        mat =np.array([
+            t,
+            ones*f_pars["quad"],
+            ones*f_pars["ham"],
+            ones*f_pars["abs"],
+            ones*f_pars["pec"],
+            ones*f_pars["bi"],
+            ones*f_pars["tri"],
+            ones*f_pars["lat"],
+            ones*f_pars["calf"]])
+        mat = mat.T
+        return mat
 
-    # avg fatigue
-    f_avg_t       = f_avg[:, 0]
-    f_avg_quad    = f_avg[:, 1]
-    f_avg_ham     = f_avg[:, 2]
-    f_avg_abdom   = f_avg[:, 3]
-    f_avg_pec     = f_avg[:, 4]
-    f_avg_bi      = f_avg[:, 5]
-    f_avg_tri     = f_avg[:, 6]
-    f_avg_lat     = f_avg[:, 7]
-    f_avg_calf    = f_avg[:, 8]
-
-    # helper array
-    ones = np.ones(f_t.shape)
 
     # desired fatigue
-    f_d         = pars["f_d"]
-    f_d_quad    = ones*f_d["quad"]
-    f_d_ham     = ones*f_d["ham"]
-    f_d_abdom   = ones*f_d["abs"]
-    f_d_pec     = ones*f_d["pec"]
-    f_d_bi      = ones*f_d["bi"]
-    f_d_tri     = ones*f_d["tri"]
-    f_d_lat     = ones*f_d["lat"]
-    f_d_calf    = ones*f_d["calf"]
+    f_ref         = init_pars(f[:,0], pars["f_d"])
+    f_max         = init_pars(f[:,0], pars["f_max"])
 
-    # max fatigue
-    f_max         = pars["f_max"]
-    f_max_quad    = ones*f_max["quad"]
-    f_max_ham     = ones*f_max["ham"]
-    f_max_abdom   = ones*f_max["abs"]
-    f_max_pec     = ones*f_max["pec"]
-    f_max_bi      = ones*f_max["bi"]
-    f_max_tri     = ones*f_max["tri"]
-    f_max_lat     = ones*f_max["lat"]
-    f_max_calf    = ones*f_max["calf"]
+    plt.rcParams['axes.labelsize'] = 10.0
+    plt.rcParams['axes.titlesize'] = 11.0
+    plt.rcParams['legend.fontsize'] = 10.0
+    #plt.rcParams['figure.figsize'] = 25 / 2.54, 20 / 2.54
+    plt.rcParams["figure.figsize"] = [16,9]
 
 
-    plt.figure("quads_" + name)
-    plt.plot(f_t, f_quad, label="fatigue" )
-    plt.plot(f_t, f_d_quad, label="desired fatigue" )
-    plt.plot(f_t, f_max_quad, label="max fatigue" )
-    plt.plot(f_avg_t, f_avg_quad, label="avg fatigue" )
-    plt.scatter(sr_mg_t, sr_mg_quad, label="simulated reps")
-    plt.xlabel("time [day]")
-    plt.title("quads "+ name )
-    plt.legend()
+    def fatigue_subplot(t,
+                        f_ex,
+                        f_avg_ex,
+                        f_ref_ex,
+                        f_max_ex,
+                        name: str,
+                        subplot_id: int):
+
+
+        plt.subplot(subplot_id)
+        plt.plot(t, f_ex, label="fatigue" )
+        plt.plot(t, f_ref_ex, label="desired fatigue" )
+        plt.plot(t, f_max_ex, label="max fatigue" )
+        plt.plot(t, f_avg_ex, label="avg fatigue" )
+        plt.title(name)
+        plt.grid()
+        plt.legend()
+
+    plt.figure(name)
+    plt.clf()
+    fatigue_subplot(f[:,0], f[:,1],   f_avg[:,1], f_ref[:,1],  f_max[:,1], "quad", 421)
+    fatigue_subplot(f[:,0], f[:,2],   f_avg[:,2], f_ref[:,2],  f_max[:,2],  "ham",  422)
+    fatigue_subplot(f[:,0], f[:,3],   f_avg[:,3], f_ref[:,3],  f_max[:,3],"abdom",423)
+    fatigue_subplot(f[:,0], f[:,4],   f_avg[:,4], f_ref[:,4],  f_max[:,4],  "pec",  424)
+    fatigue_subplot(f[:,0], f[:,5],   f_avg[:,5], f_ref[:,5],  f_max[:,5],   "bi",   425)
+    fatigue_subplot(f[:,0], f[:,6],   f_avg[:,6], f_ref[:,6],  f_max[:,6],  "tri",  426)
+    fatigue_subplot(f[:,0], f[:,7],   f_avg[:,7], f_ref[:,7],  f_max[:,7],  "lat",  427)
+    fatigue_subplot(f[:,0], f[:,8],   f_avg[:,8], f_ref[:,8],  f_max[:,8], "calf", 428)
 
     plt.figure("squat_" + name)
     plt.plot(sr_t, sr_squat, label="sr_squat" )
@@ -434,20 +438,4 @@ if __name__=="__main__":
     plot_model(sr_log, sr_mg_log, f, f_avg, "data", pars)
     plot_model(sr_d_log, sr_d_mg_log, f_d, f_d_avg, "desired", pars)
 
-
     plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -115,7 +115,7 @@ def compute_fatigue(sr_mg_log: np.ndarray,
 
 
     # time interval
-    N = 1000
+    N = 500
     t_start = 0
     t_end = np.amax(sr_mg_log[:,0])
     t_interval = np.linspace(t_start, t_end, N)
@@ -275,6 +275,7 @@ def plot_model(     sr_log:    np.ndarray,
         plt.plot(f_t,       f_max_mg,   label="f_max" )
         plt.plot(f_t,       f_avg_mg,   label="f_avg" )
         plt.scatter(sr_mg_t,   sr_mg,   label="sr_mg", s=7, color="black")
+        plt.ylim((0,25))
         plt.title(name)
         plt.grid()
         plt.legend()
@@ -352,12 +353,12 @@ def compute_sr_d(f0: np.ndarray,
     N_ex = 4
 
     N_t = int(wo_opt["t_horizon"]/wo_opt["t_freq"])
-    f_d = f_d[0]
 
     sr_log = None
 
     f_cost_values = [np.inf]
-    for i in range(1000):
+    n = 10000
+    for i in range(n):
         # generate sr_log
         sr_log_cand = np.random.randint(0 , sr_max, (N_t,  N_ex + 1 ))
         sr_log_cand[:,0] = np.linspace(0, wo_opt["t_horizon"], N_t)
@@ -371,8 +372,7 @@ def compute_sr_d(f0: np.ndarray,
         if f_cost_cand < f_cost_values[-1]:
             sr_log = sr_log_cand
             f_cost_values.append(f_cost_cand)
-            print("cost ", f_cost_values)
-
+            print(i, f_cost_values[-1])
 
     return sr_log
 

@@ -325,38 +325,47 @@ def compute_fatigue_avg(f:      np.ndarray,
 
     return f_avg
 
-def compute_sr_d(f0, pars):
+def compute_sr_d(f0: np.ndarray,
+                 pars: dict):
     wo_opt = pars["wo_opt"]
     sr_max = 20
-    N_ex=4
-    N_t=wo_opt["t_horizon"]/wo_opt["t_freq"]
+    N_ex = 4
 
-    f_best = np.inf
-    sr_log_best = None
+    N_t = int(wo_opt["t_horizon"]/wo_opt["t_freq"])
+    f_d = 10
 
+    sr_log = None
+
+    f_cost_values = [np.inf]
     for i in range(1000):
         # generate sr_log
-        sr_log = np.random.randint(0 , sr_max, (N_t,  N_ex + 1 ))
-        sr_log[:,0] = np.linspace(0, wo_opt["t_horizon"], N_t)
+        sr_log_cand = np.random.randint(0 , sr_max, (N_t,  N_ex + 1 ))
+        sr_log_cand[:,0] = np.linspace(0, wo_opt["t_horizon"], N_t)
+
 
         # transform stimulated reps from exercise to muscle group
-        sr_mg_log = compute_sr_mg_log(sr_log=sr_log,
-                                      pars=pars)
+        sr_mg_log_cand = compute_sr_mg_log( sr_log=sr_log_cand,
+                                            pars=pars)
 
         # compute muscle fatigue
-        f = compute_fatigue(sr_mg_log=sr_mg_log,
+        f_cand = compute_fatigue(sr_mg_log=sr_mg_log_cand,
                             f0=None,
                             pars=pars)
 
-        f_avg = compute_fatigue_avg(f=f,
+
+        f_avg_cand = compute_fatigue_avg(f=f,
                                     pars=pars)
 
-        if np.norm(f_avg - f_d) < np.norm(f_avg - f_d):
-            f_best = f_best
-            sr_log_best = sr_log_best
+        f_cost_cand = np.linalg.norm(f_avg_cand[:,1:] - f_d)
+        print(f_cost_cand)
+
+        if f_cost_cand < f_cost_values[-1]:
+            sr_log = sr_log_cand
+            f_cost_values.append(f_cost_cand)
+            print("cost ", f_cost_values)
 
 
-    return sr_log_best
+    return sr_log
 
 
 
@@ -389,7 +398,7 @@ if __name__=="__main__":
                                 pars=pars)
 
     # compute desired fatigue
-    sr_d = compute_sr_d(sr_d, pars)
+    sr_d = compute_sr_d(f0=f[-1,:], pars=pars)
 
     # plotting
     plot_fatigue(sr_log, sr_mg_log, f, pars)

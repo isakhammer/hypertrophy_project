@@ -356,7 +356,7 @@ def compute_sr_d(f0: np.ndarray,
     f_d, f_max = align_fatigue_pars(pars = pars)
 
     wo_opt = pars["wo_opt"]
-    sr_max = 20
+    sr_max = 30
     N_ex = 4
 
     N_t = int(wo_opt["t_horizon"]/wo_opt["t_freq"])

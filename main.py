@@ -204,20 +204,44 @@ def compute_sr_mg_log(sr_log: np.ndarray,
     return sr_mg_log
 
 
-def plot_fatigue(   sr_log:    np.ndarray,
+def plot_model(     sr_log:    np.ndarray,
                     sr_mg_log: np.ndarray,
                     f:         np.ndarray,
+                    f_avg:     np.ndarray,
+                    name:      str,
                     pars:      dict):
     """
 
     Inputs:
-    sr_log:   imported stimulated reps [time, squat, deadlift, pullup, bench]
+    sr_log:     imported stimulated reps [time, squat, deadlift, pullup, bench]
     sr_mg_log:  stimulated reps for every muscle group
                 [time, quad, ham, abs, pec, bu, tri, lat, calf ]
-    fatigue:  total fatigue on muscle groups
+    f:          total fatigue on muscle groups
                 [time, quad, ham, abs, pec, bu, tri, lat, calf ]
+    f_avg:      moving average of total fatigue on muscle groups
+                [time, quad, ham, abs, pec, bu, tri, lat, calf ]
+    name:       name of plot
+    pars:       all imported parameters
 
     """
+    # stimulated reps in an exercise
+    sr_t        = sr_log[:, 0]
+    sr_squat    = sr_log[:, 1]
+    sr_deadlift = sr_log[:, 2]
+    sr_pullup   = sr_log[:, 3]
+    sr_bench    = sr_log[:, 4]
+
+    # stimulated reps for muscle groups
+    sr_mg_t       = sr_mg_log[:, 0]
+    sr_mg_quad    = sr_mg_log[:, 1]
+    sr_mg_ham     = sr_mg_log[:, 2]
+    sr_mg_abdom   = sr_mg_log[:, 3]
+    sr_mg_pec     = sr_mg_log[:, 4]
+    sr_mg_bi      = sr_mg_log[:, 5]
+    sr_mg_tri     = sr_mg_log[:, 6]
+    sr_mg_lat     = sr_mg_log[:, 7]
+    sr_mg_calf    = sr_mg_log[:, 8]
+
 
     # fatigue
     f_t       = f[:, 0]
@@ -229,6 +253,17 @@ def plot_fatigue(   sr_log:    np.ndarray,
     f_tri     = f[:, 6]
     f_lat     = f[:, 7]
     f_calf    = f[:, 8]
+
+    # avg fatigue
+    f_avg_t       = f_avg[:, 0]
+    f_avg_quad    = f_avg[:, 1]
+    f_avg_ham     = f_avg[:, 2]
+    f_avg_abdom   = f_avg[:, 3]
+    f_avg_pec     = f_avg[:, 4]
+    f_avg_bi      = f_avg[:, 5]
+    f_avg_tri     = f_avg[:, 6]
+    f_avg_lat     = f_avg[:, 7]
+    f_avg_calf    = f_avg[:, 8]
 
     # helper array
     ones = np.ones(f_t.shape)
@@ -255,60 +290,24 @@ def plot_fatigue(   sr_log:    np.ndarray,
     f_max_lat     = ones*f_max["lat"]
     f_max_calf    = ones*f_max["calf"]
 
-    # stimulated reps for muscle groups
-    sr_mg_t       = sr_mg_log[:, 0]
-    sr_mg_quad    = sr_mg_log[:, 1]
-    sr_mg_ham     = sr_mg_log[:, 2]
-    sr_mg_abdom   = sr_mg_log[:, 3]
-    sr_mg_pec     = sr_mg_log[:, 4]
-    sr_mg_bi      = sr_mg_log[:, 5]
-    sr_mg_tri     = sr_mg_log[:, 6]
-    sr_mg_lat     = sr_mg_log[:, 7]
-    sr_mg_calf    = sr_mg_log[:, 8]
 
-
-    plt.figure("quads")
+    plt.figure("quads_" + name)
     plt.plot(f_t, f_quad, label="fatigue" )
     plt.plot(f_t, f_d_quad, label="desired fatigue" )
     plt.plot(f_t, f_max_quad, label="max fatigue" )
+    plt.plot(f_avg_t, f_avg_quad, label="avg fatigue" )
     plt.scatter(sr_mg_t, sr_mg_quad, label="simulated reps")
     plt.xlabel("time [day]")
-    plt.title("quads")
+    plt.title("quads "+ name )
     plt.legend()
 
-def plot_sr(        sr_log:    np.ndarray,
-                    sr_mg_log: np.ndarray):
-    """
-
-    Inputs:
-    sr_log:   imported stimulated reps [time, squat, deadlift, pullup, bench]
-    sr_mg_log:  stimulated reps for every muscle group
-                [time, quad, ham, abs, pec, bu, tri, lat, calf ]
-
-    """
-    sr_t        = sr_mg_log[:, 0]
-    sr_squat    = sr_log[:, 1]
-    sr_deadlift = sr_log[:, 2]
-    sr_pullup   = sr_log[:, 3]
-    sr_bench    = sr_log[:, 4]
-
-    sr_mg_t       = sr_mg_log[:, 0]
-    sr_mg_quad    = sr_mg_log[:, 1]
-    sr_mg_ham     = sr_mg_log[:, 2]
-    sr_mg_abdom   = sr_mg_log[:, 3]
-    sr_mg_pec     = sr_mg_log[:, 4]
-    sr_mg_bi      = sr_mg_log[:, 5]
-    sr_mg_tri     = sr_mg_log[:, 6]
-    sr_mg_lat     = sr_mg_log[:, 7]
-    sr_mg_calf    = sr_mg_log[:, 8]
-
-
-    plt.figure("comparison")
+    plt.figure("squat_" + name)
     plt.plot(sr_t, sr_squat, label="sr_squat" )
     plt.scatter(sr_mg_t, sr_mg_quad, label="sr_quads")
     plt.xlabel("time [day]")
-    plt.title("comparison")
+    plt.title("squat " + name)
     plt.legend()
+
 
 def compute_fatigue_avg(f:      np.ndarray,
                         pars:   dict) -> np.ndarray:

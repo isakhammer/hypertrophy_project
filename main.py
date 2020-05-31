@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from src import model
+from src import brute_force_optimization as bfo
 import random
 import json
 import configparser
@@ -198,42 +199,6 @@ def align_mg_pars(mg_pars: dict):
 
     return mat
 
-def compute_sr_d(f0: np.ndarray,
-                 pars: dict):
-
-    f_d = align_mg_pars(pars["f_d"])
-    f_max = align_mg_pars(pars["f_max"])
-
-    wo_opt = pars["wo_opt"]
-    sr_max = 30
-    N_ex = 4
-
-    N_t = int(wo_opt["t_horizon"]/wo_opt["t_freq"])
-
-    sr_log = None
-
-    f_cost_values = [np.inf]
-    n = 1000
-    for i in range(n):
-        # generate sr_log
-        sr_log_cand = np.random.randint(0 , sr_max, (N_t,  N_ex + 1 ))
-        sr_log_cand[:,0] = np.linspace(0, wo_opt["t_horizon"], N_t)
-
-        sr_mg_log_cand, f_cand, f_avg_cand = model.compute_model(sr_log=sr_log_cand,
-                                                                f0=None,
-                                                                pars=pars)
-
-        f_cost_cand = np.linalg.norm(f_avg_cand[:,1:] - f_d)
-
-        if f_cost_cand < f_cost_values[-1]:
-            sr_log = sr_log_cand
-            f_cost_values.append(f_cost_cand)
-            print(i, f_cost_values[-1])
-
-    return sr_log
-
-
-
 
 if __name__=="__main__":
     # file paths
@@ -252,8 +217,13 @@ if __name__=="__main__":
                                         f0=None,
                                         pars=pars)
 
-    sr_d_log = compute_sr_d(f0=f[:, -1],
-                             pars=pars)
+    f_d = align_mg_pars(pars["f_d"])
+    f_max = align_mg_pars(pars["f_max"])
+
+    sr_d_log = bfo.brute_force_optimization(f0=f[:, -1],
+                                            f_d=f_d,
+                                            f_max=f_max,
+                                            pars=pars)
 
     sr_d_mg_log, f_d, f_d_avg = model.compute_model(sr_log=sr_d_log,
                                                     f0=None,

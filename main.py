@@ -185,36 +185,24 @@ def plot_model(     sr_log:    np.ndarray,
 
 
 
-def align_fatigue_pars(pars: dict):
-    # desired fatigue
-    f_d_pars = pars["f_d"]
-    f_d =   np.array([
-            f_d_pars["quad"],
-            f_d_pars["ham"],
-            f_d_pars["abs"],
-            f_d_pars["pec"],
-            f_d_pars["bi"],
-            f_d_pars["tri"],
-            f_d_pars["lat"],
-            f_d_pars["calf"]])
+def align_mg_pars(mg_pars: dict):
+    mat =   np.array([
+            mg_pars["quad"],
+            mg_pars["ham"],
+            mg_pars["abs"],
+            mg_pars["pec"],
+            mg_pars["bi"],
+            mg_pars["tri"],
+            mg_pars["lat"],
+            mg_pars["calf"]])
 
-    # desired fatigue
-    f_max_pars = pars["f_max"]
-    f_max = np.array([
-            f_max_pars["quad"],
-            f_max_pars["ham"],
-            f_max_pars["abs"],
-            f_max_pars["pec"],
-            f_max_pars["bi"],
-            f_max_pars["tri"],
-            f_max_pars["lat"],
-            f_max_pars["calf"]])
-    return f_d, f_max
+    return mat
 
 def compute_sr_d(f0: np.ndarray,
                  pars: dict):
 
-    f_d, f_max = align_fatigue_pars(pars = pars)
+    f_d = align_mg_pars(pars["f_d"])
+    f_max = align_mg_pars(pars["f_max"])
 
     wo_opt = pars["wo_opt"]
     sr_max = 30

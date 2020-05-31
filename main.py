@@ -370,22 +370,11 @@ def compute_sr_d(f0: np.ndarray,
         sr_log_cand = np.random.randint(0 , sr_max, (N_t,  N_ex + 1 ))
         sr_log_cand[:,0] = np.linspace(0, wo_opt["t_horizon"], N_t)
 
-
-        # transform stimulated reps from exercise to muscle group
-        sr_mg_log_cand = compute_sr_mg_log( sr_log=sr_log_cand,
-                                            pars=pars)
-
-        # compute muscle fatigue
-        f_cand = compute_fatigue(sr_mg_log=sr_mg_log_cand,
-                            f0=None,
-                            pars=pars)
-
-
-        f_avg_cand = compute_fatigue_avg(f=f,
-                                    pars=pars)
+        sr_mg_log_cand, f_cand, f_avg_cand = compute_model(sr_log=sr_log_cand,
+                                                           f0=None,
+                                                           pars=pars)
 
         f_cost_cand = np.linalg.norm(f_avg_cand[:,1:] - f_d)
-        print(f_cost_cand)
 
         if f_cost_cand < f_cost_values[-1]:
             sr_log = sr_log_cand
@@ -397,7 +386,24 @@ def compute_sr_d(f0: np.ndarray,
 
 
 
+def compute_model(sr_log: np.ndarray,
+                 f0: np.ndarray,
+                 pars: dict):
 
+    # transform stimulated reps from ecercise to muscle group
+    sr_mg_log = compute_sr_mg_log(sr_log=sr_log,
+                                  pars=pars)
+
+    # compute muscle fatigue
+    f = compute_fatigue(sr_mg_log=sr_mg_log,
+                        f0=f0,
+                        pars=pars)
+
+    # computing moving average of total muscle fatigue
+    f_avg = compute_fatigue_avg(f=f,
+                                pars=pars)
+
+    return sr_mg_log, f, f_avg
 
 
 if __name__=="__main__":
@@ -413,30 +419,21 @@ if __name__=="__main__":
     # load stimulated reps log for exercises
     sr_log = import_log(file_paths)
 
-    # transform stimulated reps from ecercise to muscle group
-    sr_mg_log = compute_sr_mg_log(sr_log=sr_log,
-                                  pars=pars)
+    sr_mg_log, f, f_avg = compute_model(sr_log=sr_log,
+                                        f0=None,
+                                        pars=pars)
 
-    # compute muscle fatigue
-    f = compute_fatigue(sr_mg_log=sr_mg_log,
-                        f0=None,
-                        pars=pars)
+    sr_d_log = compute_sr_d(f0=f[:, -1],
+                             pars=pars)
 
-    f_avg = compute_fatigue_avg(f=f,
-                                pars=pars)
-
-    # compute desired fatigue
-    sr_d = compute_sr_d(f0=f[-1,:], pars=pars)
+    sr_d_mg_log, f_d, f_d_avg = compute_model(sr_log=sr_d_log,
+                                              f0=None,
+                                              pars=pars)
 
     # plotting
-    plot_fatigue(sr_log, sr_mg_log, f, pars)
-    plot_sr(sr_log, sr_mg_log)
+    plot_model(sr_log, sr_mg_log, f, f_avg, "data", pars)
+    plot_model(sr_d_log, sr_d_mg_log, f_d, f_d_avg, "desired", pars)
 
-    plt.close("all")
-    plt.figure("f")
-    plt.plot(f_avg[:,0], f_avg[:,1], label="f_avg")
-    plt.plot(f[:,0], f[:,1], label="f")
-    plt.legend()
 
     plt.show()
 

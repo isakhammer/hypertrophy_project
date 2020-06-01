@@ -2,11 +2,11 @@ import numpy as np
 from matplotlib import pyplot as plt
 from src import model
 from src import brute_force_optimization as bfo
+from src import particle_swarm_optimization as pso
 import random
 import json
 import configparser
 import os
-
 
 
 def load_params( file_paths: dict ) -> dict:
@@ -220,10 +220,18 @@ if __name__=="__main__":
     f_d = align_mg_pars(pars["f_d"])
     f_max = align_mg_pars(pars["f_max"])
 
-    sr_d_log = bfo.brute_force_optimization(f0=f[:, -1],
-                                            f_d=f_d,
-                                            f_max=f_max,
-                                            pars=pars)
+    method = "pso"
+
+    if method =="bfo":
+        sr_d_log = bfo.brute_force_optimization(f0=f[:, -1],
+                                                f_d=f_d,
+                                                f_max=f_max,
+                                                pars=pars)
+    elif method =="pso":
+        sr_d_log = pso.particle_swarm_optimization( f0=f[:, -1],
+                                                    f_d=f_d,
+                                                    f_max=f_max,
+                                                    pars=pars)
 
     sr_d_mg_log, f_d, f_d_avg = model.compute_model(sr_log=sr_d_log,
                                                     f0=None,

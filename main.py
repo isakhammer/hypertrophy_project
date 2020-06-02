@@ -174,15 +174,19 @@ def plot_model(     sr_log:    np.ndarray,
     fatigue_subplot(f[:,0], f[:,7],   f_avg[:,7], f_ref[:,7],  f_max[:,7],  sr_mg_log[:,0],  sr_mg_log[:,7],  "lat",    427)
     fatigue_subplot(f[:,0], f[:,8],   f_avg[:,8], f_ref[:,8],  f_max[:,8],  sr_mg_log[:,0],  sr_mg_log[:,8], "calf",    428)
 
-    # stimulated reps in an exercise
-    # plt.figure("exercises" + name)
-    # plt.scatter(sr_log[:,0], sr_log[:,1], label="squat" )
-    # plt.scatter(sr_log[:,0], sr_log[:,2], label="deadlift" )
-    # plt.scatter(sr_log[:,0], sr_log[:,3], label="pullup" )
-    # plt.scatter(sr_log[:,0], sr_log[:,4], label="bench" )
-    # plt.xlabel("time [day]")
-    # plt.title("sr_log_" + name)
-    # plt.legend()
+    plt.figure("exercises_" + name)
+    plt.subplot(411)
+    plt.plot(sr_log[:,0], sr_log[:,1], label="squat" )
+    plt.legend()
+    plt.subplot(412)
+    plt.plot(sr_log[:,0], sr_log[:,2], label="deadlift" )
+    plt.legend()
+    plt.subplot(413)
+    plt.plot(sr_log[:,0], sr_log[:,3], label="pullup" )
+    plt.legend()
+    plt.subplot(414)
+    plt.plot(sr_log[:,0], sr_log[:,4], label="bench" )
+    plt.legend()
 
 
 

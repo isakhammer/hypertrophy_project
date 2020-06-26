@@ -68,7 +68,7 @@ def particle_swarm_optimization(f0: np.ndarray,
             p.vel = c_vel*p.vel + c_best*(p.best - p.pos) + c_global*(global_best - p.pos)
             p.pos += p.vel
 
-        if (i%10 is 0):
+        if (i%10 == 0):
             print(i, global_best_value)
 
 

@@ -73,33 +73,22 @@ def compute_sr_mg_log(sr_log: np.ndarray,
 
     """
 
-    def init_opt(ex_opt):
-        opt = [
-            ex_opt["quad"],
-            ex_opt["ham"],
-            ex_opt["abs"],
-            ex_opt["pec"],
-            ex_opt["bi"],
-            ex_opt["tri"],
-            ex_opt["lat"],
-            ex_opt["calf"]
-        ]
-        return opt
 
     # Arrays of how much each exercise if affecting muscle groups
-    ex_opts = pars["ex"]
-    squat    = init_opt(ex_opts["squat"])
-    deadlift = init_opt(ex_opts["deadlift"])
-    bench    = init_opt(ex_opts["bench"])
-    pullup   = init_opt(ex_opts["pullup"])
+    ex_pars = pars["ex"]
 
     # initalize transformation matrix
-    T_mg_ex = np.array([
-                    squat,
-                    deadlift,
-                    bench,
-                    pullup
-                        ])
+    T_tmp = []
+    for ex_name in ex_pars:
+        ex = []
+        ex_par = ex_pars[ex_name]
+
+        for mg_name in ex_par:
+            mg_value = ex_par[mg_name]
+            ex.append(mg_value)
+
+        T_tmp.append(ex)
+    T_mg_ex = np.array(T_tmp)
 
     # extract time and exercises
     t_sr = sr_log[:, 0]

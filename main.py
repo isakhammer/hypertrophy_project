@@ -191,17 +191,11 @@ def plot_model(     sr_log:    np.ndarray,
 
 
 def align_mg_pars(mg_pars: dict):
-    mat =   np.array([
-            mg_pars["quad"],
-            mg_pars["ham"],
-            mg_pars["abs"],
-            mg_pars["pec"],
-            mg_pars["bi"],
-            mg_pars["tri"],
-            mg_pars["lat"],
-            mg_pars["calf"]])
-
-    return mat
+    mg = []
+    for mg_name in mg_pars:
+        mg.append(mg_pars[mg_name])
+    mg = np.array(mg)
+    return mg
 
 
 if __name__=="__main__":

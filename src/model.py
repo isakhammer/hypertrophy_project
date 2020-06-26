@@ -17,17 +17,13 @@ def compute_fatigue(sr_mg_log: np.ndarray,
                 [time, quad, ham, abs, pec, bu, tri, lat, calf ]
 
     """
+
     rec_rates = pars["rec_rates"]
-    rec_rates = np.array([
-                rec_rates["quad"],
-                rec_rates["ham"],
-                rec_rates["pec"],
-                rec_rates["abs"],
-                rec_rates["bi"] ,
-                rec_rates["tri"],
-                rec_rates["lat"],
-                rec_rates["calf"]
-                ])
+    rec_tmp = []
+    for mg_name in rec_rates:
+        rec_tmp.append(rec_rates[mg_name])
+
+    rec_rates = np.array(rec_tmp)
 
 
     # time interval

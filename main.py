@@ -81,28 +81,9 @@ def import_log( file_paths: dict) -> np.ndarray:
 
 
     # load data from csv file
-    csv_data_tmp = np.loadtxt(skipper(file_paths["sr_log"], header=True), delimiter=';')
+    csv_data = np.loadtxt(skipper(file_paths["sr_log"], header=True), delimiter=';')
 
-    # get sr log out of array.
-    if np.shape(csv_data_tmp)[1] == 5:
-        time         = csv_data_tmp[:,0]
-        squat       = csv_data_tmp[:,1]
-        deadlift    = csv_data_tmp[:,2]
-        pullup      = csv_data_tmp[:,3]
-        bench       = csv_data_tmp[:,4]
-
-    else:
-        raise IOError(file_paths["sr_log"] + " cannot be read!")
-
-    # assemble to a single array
-    sr_log = np.column_stack((time,
-                                squat,
-                                deadlift,
-                                pullup,
-                                bench
-                                ))
-
-    return sr_log
+    return csv_data
 
 
 

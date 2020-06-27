@@ -11,7 +11,7 @@ import os
 def feasability_check(pars: dict):
 
     N_mg = len(pars["mg_names"])
-    N_ex = pars["N_ex"]
+    N_ex = len(pars["ex_names"])
     ex_pars = pars["ex"]
 
     for ex_name in ex_pars:
@@ -52,8 +52,6 @@ def load_params( file_paths: dict ) -> dict:
         ex[ex_name] = json.loads(parser.get('EXERCISE_OPTIONS', ex_name))
 
     pars["ex"] = ex
-    pars["N_mg"] = json.loads(parser.get('GENERAL', 'N_mg'))
-    pars["N_ex"] = json.loads(parser.get('GENERAL', 'N_ex'))
 
     feasability_check(pars)
     return pars

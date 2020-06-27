@@ -15,14 +15,14 @@ def particle_swarm_optimization(f0: np.ndarray,
                                 pars: dict):
 
     # options
-    n = 100
+    n = 50
     sr_max = 30
-    N_ex = 4
-    n_particles = 10
+    N_ex = len(pars["ex_names"])
+    n_particles = 50
 
     c_vel = 0.1
     c_best = 0.5
-    c_global  = 0.2
+    c_global  = 0.1
 
     # general options
     wo_opt = pars["wo_opt"]

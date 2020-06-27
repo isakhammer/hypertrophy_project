@@ -146,10 +146,12 @@ def plot_model(     sr_log:    np.ndarray,
                         sr_mg_t,
                         sr_mg,
                         name: str,
-                        subplot_id: int):
+                        nrows: int,
+                        ncols: int,
+                        index: int):
 
 
-        plt.subplot(subplot_id)
+        plt.subplot(nrows, ncols, index)
         plt.plot(f_t,       f_mg,       label="f" )
         plt.plot(f_t,       f_ref_mg,   label="f_ref" )
         plt.plot(f_t,       f_max_mg,   label="f_max" )
@@ -162,14 +164,14 @@ def plot_model(     sr_log:    np.ndarray,
 
     plt.figure(name)
     plt.clf()
-    fatigue_subplot(f[:,0], f[:,1],   f_avg[:,1], f_ref[:,1],  f_max[:,1],  sr_mg_log[:,0],  sr_mg_log[:,1], "quad",    421)
-    fatigue_subplot(f[:,0], f[:,2],   f_avg[:,2], f_ref[:,2],  f_max[:,2],  sr_mg_log[:,0],  sr_mg_log[:,2],  "ham",    422)
-    fatigue_subplot(f[:,0], f[:,3],   f_avg[:,3], f_ref[:,3],  f_max[:,3],  sr_mg_log[:,0],  sr_mg_log[:,3],"abdom",    423)
-    fatigue_subplot(f[:,0], f[:,4],   f_avg[:,4], f_ref[:,4],  f_max[:,4],  sr_mg_log[:,0],  sr_mg_log[:,4],  "pec",    424)
-    fatigue_subplot(f[:,0], f[:,5],   f_avg[:,5], f_ref[:,5],  f_max[:,5],  sr_mg_log[:,0],  sr_mg_log[:,5],   "bi",    425)
-    fatigue_subplot(f[:,0], f[:,6],   f_avg[:,6], f_ref[:,6],  f_max[:,6],  sr_mg_log[:,0],  sr_mg_log[:,6],  "tri",    426)
-    fatigue_subplot(f[:,0], f[:,7],   f_avg[:,7], f_ref[:,7],  f_max[:,7],  sr_mg_log[:,0],  sr_mg_log[:,7],  "lat",    427)
-    fatigue_subplot(f[:,0], f[:,8],   f_avg[:,8], f_ref[:,8],  f_max[:,8],  sr_mg_log[:,0],  sr_mg_log[:,8], "calf",    428)
+    fatigue_subplot(f[:,0], f[:,1],   f_avg[:,1], f_ref[:,1],  f_max[:,1],  sr_mg_log[:,0],  sr_mg_log[:,1], "quad",    4, 2, 1)
+    fatigue_subplot(f[:,0], f[:,2],   f_avg[:,2], f_ref[:,2],  f_max[:,2],  sr_mg_log[:,0],  sr_mg_log[:,2],  "ham",    4, 2, 2)
+    fatigue_subplot(f[:,0], f[:,3],   f_avg[:,3], f_ref[:,3],  f_max[:,3],  sr_mg_log[:,0],  sr_mg_log[:,3],"abdom",    4, 2, 3)
+    fatigue_subplot(f[:,0], f[:,4],   f_avg[:,4], f_ref[:,4],  f_max[:,4],  sr_mg_log[:,0],  sr_mg_log[:,4],  "pec",    4, 2, 4)
+    fatigue_subplot(f[:,0], f[:,5],   f_avg[:,5], f_ref[:,5],  f_max[:,5],  sr_mg_log[:,0],  sr_mg_log[:,5],   "bi",    4, 2, 5)
+    fatigue_subplot(f[:,0], f[:,6],   f_avg[:,6], f_ref[:,6],  f_max[:,6],  sr_mg_log[:,0],  sr_mg_log[:,6],  "tri",    4, 2, 6)
+    fatigue_subplot(f[:,0], f[:,7],   f_avg[:,7], f_ref[:,7],  f_max[:,7],  sr_mg_log[:,0],  sr_mg_log[:,7],  "lat",    4, 2, 7)
+    fatigue_subplot(f[:,0], f[:,8],   f_avg[:,8], f_ref[:,8],  f_max[:,8],  sr_mg_log[:,0],  sr_mg_log[:,8], "calf",    4, 2, 8)
 
     plt.figure("exercises_" + name)
     plt.subplot(411)

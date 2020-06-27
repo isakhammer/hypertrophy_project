@@ -10,14 +10,14 @@ import os
 
 def feasability_check(pars: dict):
 
-    N_mg = pars["N_mg"]
+    N_mg = len(pars["mg_names"])
     N_ex = pars["N_ex"]
     ex_pars = pars["ex"]
 
     for ex_name in ex_pars:
         ex_par = ex_pars[ex_name]
-        if len(ex_par) != N_mg:
-            print("ERROR", ex_name, " is not feasible. N_mg does not match")
+        if N_mg != len(ex_par):
+            print("ERROR", ex_name, " is not feasible. mg names does not match")
             exit()
 
 
@@ -44,11 +44,12 @@ def load_params( file_paths: dict ) -> dict:
     pars["f_d"]         = json.loads(parser.get('FATIGUE_OPTIONS', 'f_d'))
     pars["rec_rates"]   = json.loads(parser.get('FATIGUE_OPTIONS', 'rec_rates'))
 
+    pars["mg_names"] = json.loads(parser.get('GENERAL', 'mg_names'))
+    pars["ex_names"] = json.loads(parser.get('GENERAL', 'ex_names'))
+
     ex = {}
-    ex['squat']     = json.loads(parser.get('EXERCISE_OPTIONS', 'squat'))
-    ex['deadlift']  = json.loads(parser.get('EXERCISE_OPTIONS', 'deadlift'))
-    ex['bench']     = json.loads(parser.get('EXERCISE_OPTIONS', 'bench'))
-    ex['pullup']    = json.loads(parser.get('EXERCISE_OPTIONS', 'pullup'))
+    for ex_name in pars["ex_names"]:
+        ex[ex_name] = json.loads(parser.get('EXERCISE_OPTIONS', ex_name))
 
     pars["ex"] = ex
     pars["N_mg"] = json.loads(parser.get('GENERAL', 'N_mg'))

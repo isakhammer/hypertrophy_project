@@ -8,6 +8,20 @@ import json
 import configparser
 import os
 
+def feasability_check(pars: dict):
+
+    N_mg = pars["N_mg"]
+    N_ex = pars["N_ex"]
+    ex_pars = pars["ex"]
+
+    for ex_name in ex_pars:
+        ex_par = ex_pars[ex_name]
+        if len(ex_par) != N_mg:
+            print("ERROR", ex_name, " is not feasible. N_mg does not match")
+            exit()
+
+
+
 
 def load_params( file_paths: dict ) -> dict:
     """
@@ -37,6 +51,10 @@ def load_params( file_paths: dict ) -> dict:
     ex['pullup']    = json.loads(parser.get('EXERCISE_OPTIONS', 'pullup'))
 
     pars["ex"] = ex
+    pars["N_mg"] = json.loads(parser.get('GENERAL', 'N_mg'))
+    pars["N_ex"] = json.loads(parser.get('GENERAL', 'N_ex'))
+
+    feasability_check(pars)
     return pars
 
 def import_log( file_paths: dict) -> np.ndarray:
@@ -131,7 +149,6 @@ def plot_model(     sr_log:    np.ndarray,
     # desired fatigue
     f_ref         = init_pars(f[:,0], pars["f_d"])
     f_max         = init_pars(f[:,0], pars["f_max"])
-
     plt.rcParams['axes.labelsize'] = 10.0
     plt.rcParams['axes.titlesize'] = 11.0
     plt.rcParams['legend.fontsize'] = 10.0

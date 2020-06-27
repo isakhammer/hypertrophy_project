@@ -115,18 +115,16 @@ def plot_model(     sr_log:    np.ndarray,
             f_pars: dictonary for a specific muscle attribute.
 
         """
+        f_mg_pars = align_mg_pars(f_pars)
+
         ones = np.ones(t.shape)
-        mat =np.array([
-            t,
-            ones*f_pars["quad"],
-            ones*f_pars["ham"],
-            ones*f_pars["abs"],
-            ones*f_pars["pec"],
-            ones*f_pars["bi"],
-            ones*f_pars["tri"],
-            ones*f_pars["lat"],
-            ones*f_pars["calf"]])
-        mat = mat.T
+        mat = []
+        mat.append(t)
+        for i in range(f_mg_pars.shape[0]):
+            mat.append(ones*f_mg_pars[i])
+
+        mat = np.array(mat).T
+
         return mat
 
 

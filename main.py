@@ -138,6 +138,7 @@ def plot_model(     sr_log:    np.ndarray,
     plt.rcParams["figure.figsize"] = [16,9]
 
 
+    # plot muscle fatigue
     def fatigue_subplot(f_t,
                         f_mg,
                         f_avg_mg,
@@ -145,7 +146,7 @@ def plot_model(     sr_log:    np.ndarray,
                         f_max_mg,
                         sr_mg_t,
                         sr_mg,
-                        name: str,
+                        title: str,
                         nrows: int,
                         ncols: int,
                         index: int):
@@ -158,14 +159,13 @@ def plot_model(     sr_log:    np.ndarray,
         plt.plot(f_t,       f_avg_mg,   label="f_avg" )
         plt.scatter(sr_mg_t,   sr_mg,   label="sr_mg", s=7, color="black")
         plt.ylim((0,25))
-        plt.title(name)
+        plt.title(title)
         plt.grid()
         plt.legend()
 
     plt.figure(name)
     plt.clf()
     mg_names = pars["mg_names"]
-    ex_names = pars["ex_names"]
 
     N_mg = len(mg_names)
     ncols = 2
@@ -175,23 +175,34 @@ def plot_model(     sr_log:    np.ndarray,
     else:
         nrows = N_mg//ncols + 1
 
-
-    for i in range(1, len(mg_names) + 1):
+    for i in range(1, N_mg + 1):
         fatigue_subplot(f[:,0], f[:,i],   f_avg[:,i], f_ref[:,i],  f_max[:,i],  sr_mg_log[:,0],  sr_mg_log[:,i], mg_names[i-1],    nrows, ncols, i)
 
+    # plot stimulated reps for exercises
+    def ex_subplot(   sr_t,
+                            sr_ex,
+                            title:  str,
+                            nrows:  int,
+                            ncols:  int,
+                            index:  int):
+        plt.subplot( nrows, ncols, index)
+        plt.plot(sr_t, sr_ex, label="stimulated reps")
+        plt.grid()
+        plt.title(title)
+        plt.legend()
+
     plt.figure("exercises_" + name)
-    plt.subplot(411)
-    plt.plot(sr_log[:,0], sr_log[:,1], label="squat" )
-    plt.legend()
-    plt.subplot(412)
-    plt.plot(sr_log[:,0], sr_log[:,2], label="deadlift" )
-    plt.legend()
-    plt.subplot(413)
-    plt.plot(sr_log[:,0], sr_log[:,3], label="pullup" )
-    plt.legend()
-    plt.subplot(414)
-    plt.plot(sr_log[:,0], sr_log[:,4], label="bench" )
-    plt.legend()
+    ex_names = pars["ex_names"]
+    N_ex = len(ex_names)
+    ncols = 2
+    nrows = None
+    if N_ex%ncols == 0:
+        nrows = N_ex//ncols
+    else:
+        nrows = N_ex//ncols + 1
+
+    for i in range(1, N_ex + 1):
+        ex_subplot(sr_log[:,0], sr_log[:,i], ex_names[i-1], nrows, ncols, i)
 
 
 

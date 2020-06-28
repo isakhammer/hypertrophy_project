@@ -16,13 +16,14 @@ def particle_swarm_optimization(f0: np.ndarray,
 
     # options
     n = 50
-    sr_max = 30
+    sr_max = 20
     N_ex = len(pars["ex_names"])
-    n_particles = 50
+    n_particles = 30
 
-    c_vel = 0.1
-    c_best = 0.5
-    c_global  = 0.1
+    c_vel = 0.02
+    c_noise = 0.1
+    c_best = 1.6
+    c_global = 0.2
 
     # general options
     wo_opt = pars["wo_opt"]
@@ -34,7 +35,7 @@ def particle_swarm_optimization(f0: np.ndarray,
     for i in range(n_particles):
         p = Particle()
         p.pos = np.random.uniform(0 , sr_max, N_t*N_ex)
-        p.best = p.pos
+        p.vel = np.random.uniform(-1 , 1, N_t*N_ex)
         p.best_value = np.inf
         p.vel = p.pos/10
         p.particle_id = i
@@ -65,11 +66,14 @@ def particle_swarm_optimization(f0: np.ndarray,
 
         # iterate particles
         for p in particles:
-            p.vel = c_vel*p.vel + c_best*(p.best - p.pos) + c_global*(global_best - p.pos)
+            p.vel = c_vel*p.vel + c_best*(p.best - p.pos) + c_global*(global_best - p.pos) + np.random.normal( 0, c_noise, N_t*N_ex)
             p.pos += p.vel
+            if p.particle_id == 0:
+                print("vel ", np.linalg.norm(p.vel)," best: " , p.best_value," noise: ", np.random.normal( 0, c_noise, 1))
+
 
         if (i%10 == 0):
-            print(i, global_best_value)
+            print("\nglobal ", i, global_best_value)
 
 
     sr_log[:, 1:] = global_best.reshape(N_t, N_ex)

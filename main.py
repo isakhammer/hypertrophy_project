@@ -250,7 +250,7 @@ if __name__=="__main__":
                                                     pars=pars)
 
     # plotting
-    #plot_model(sr_log, sr_mg_log, f, f_avg, "data", pars)
+    plot_model(sr_log, sr_mg_log, f, f_avg, "data", pars)
     plot_model(sr_d_log, sr_d_mg_log, f_d, f_d_avg, "desired", pars)
 
     plt.show()

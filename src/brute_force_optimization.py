@@ -10,7 +10,7 @@ def brute_force_optimization(f0: np.ndarray,
     # options
     n = 1000
     sr_max = 30
-    N_ex = 4
+    N_ex = len(pars["ex_names"])
 
     # general options
     wo_opt = pars["wo_opt"]

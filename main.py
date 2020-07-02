@@ -92,15 +92,13 @@ def plot_model(     sr_log:    np.ndarray,
                     name:      str,
                     pars:      dict):
     """
+    Input:
+        sr_ex_log:  [t, sr_ex0, sr_ex1, ... ]       (N_t, N_mg + 1)
+        sr_mg_log:  [t, sr_mg0, sr_mg1, ... ]       (N_t, N_mg + 1)
+        f_log:      [t, f_mg0, f_mg1, ... ]         (N_t, N_mg + 1)
+        f_avg_log:  [t, f_mg0, f_mg1, ... ]         (N_t, N_mg + 1)
 
-    Inputs:
-    sr_log:     imported stimulated reps [time, squat, deadlift, pullup, bench]
-    sr_mg_log:  stimulated reps for every muscle group
-                [time, quad, ham, abs, pec, bu, tri, lat, calf ]
-    f:          total fatigue on muscle groups
-                [time, quad, ham, abs, pec, bu, tri, lat, calf ]
-    f_avg:      moving average of total fatigue on muscle groups
-                [time, quad, ham, abs, pec, bu, tri, lat, calf ]
+
     name:       name of plot
     pars:       all imported parameters
 
@@ -223,34 +221,42 @@ if __name__=="__main__":
     pars = load_params(file_paths=file_paths)
 
     # load stimulated reps log for exercises
-    sr_log = import_log(file_paths)
+    sr_ex_log = import_log(file_paths)
 
-    sr_mg_log, f, f_avg = model.compute_model(sr_log=sr_log,
+    sr_mg_log, f_log, f_avg_log = model.compute_model(sr_ex_log=sr_ex_log,
                                         f0=None,
                                         pars=pars)
 
+    print(sr_ex_log)
     f_d = align_mg_pars(pars["f_d"])
     f_max = align_mg_pars(pars["f_max"])
+    f0 = f_log[0, 1:]
 
     method = "pso"
 
     if method =="bfo":
-        sr_d_log = bfo.brute_force_optimization(f0=f[:, -1],
+        sr_d_ex_log = bfo.brute_force_optimization(f0=f0,
                                                 f_d=f_d,
                                                 f_max=f_max,
                                                 pars=pars)
     elif method =="pso":
-        sr_d_log = pso.particle_swarm_optimization( f0=f[:, -1],
+        sr_d_ex_log = pso.particle_swarm_optimization( f0=f0,
                                                     f_d=f_d,
                                                     f_max=f_max,
                                                     pars=pars)
 
-    sr_d_mg_log, f_d, f_d_avg = model.compute_model(sr_log=sr_d_log,
-                                                    f0=None,
+    sr_d_mg_log, f_d, f_d_avg = model.compute_model(sr_ex_log=sr_d_ex_log,
+                                                    f0=f0,
                                                     pars=pars)
 
     # plotting
-    plot_model(sr_log, sr_mg_log, f, f_avg, "data", pars)
-    plot_model(sr_d_log, sr_d_mg_log, f_d, f_d_avg, "desired", pars)
+    #plot_model(sr_ex_log, sr_mg_log, f_log, f_avg_log, "data", pars)
+
+    plot_model(sr_d_ex_log,
+               sr_d_mg_log,
+               f_d,
+               f_d_avg,
+               "desired",
+               pars)
 
     plt.show()

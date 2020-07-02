@@ -14,6 +14,16 @@ def particle_swarm_optimization(f0: np.ndarray,
                                 f_max: np.ndarray,
                                 pars: dict):
 
+    """
+    Input:
+        f0_d:       [sr_ex0, sr_ex1, ... ]          (N_ex, )
+        f_d:        [f_d_mg0, f_d_mg1, ... ]        (N_mg, )
+        f_max:      [f_d_mg0, f_d_mg1, ... ]        (N_mg, )
+        pars: dict of all parameters
+    Out:
+        sr_ex_log:  [t, sr_ex0, sr_ex1, ... ]       (N_t, N_ex + 1)
+    """
+
     # options
     n = 50
     sr_max = 20
@@ -41,9 +51,9 @@ def particle_swarm_optimization(f0: np.ndarray,
         p.particle_id = i
         particles.append(p)
 
-    # inital sr_log
-    sr_log = np.zeros((N_t, N_ex + 1))
-    sr_log[:, 0] = t
+    # initalize array of stimulated exercise log
+    sr_ex_log = np.zeros((N_t, N_ex + 1))
+    sr_ex_log[:, 0] = t
 
     # initial global values
     global_best = np.zeros(N_t*N_ex)
@@ -51,9 +61,9 @@ def particle_swarm_optimization(f0: np.ndarray,
     for i in range(n):
 
         for p in particles:
-            sr_log[:, 1:] = p.pos.reshape(N_t, N_ex)
-            sr_mg, f, f_avg= model.compute_model(   sr_log=sr_log,
-                                                    f0=None,
+            sr_ex_log[:, 1:] = p.pos.reshape(N_t, N_ex)
+            sr_mg, f, f_avg= model.compute_model(   sr_ex_log=sr_ex_log,
+                                                    f0=f0,
                                                     pars=pars)
             value =  np.linalg.norm(f_avg[:,1:] - f_d)
 
@@ -76,6 +86,6 @@ def particle_swarm_optimization(f0: np.ndarray,
             print("\nglobal ", i, global_best_value)
 
 
-    sr_log[:, 1:] = global_best.reshape(N_t, N_ex)
+    sr_ex_log[:, 1:] = global_best.reshape(N_t, N_ex)
 
-    return sr_log
+    return sr_ex_log

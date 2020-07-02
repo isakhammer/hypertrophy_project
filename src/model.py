@@ -5,16 +5,12 @@ def compute_fatigue(sr_mg_log: np.ndarray,
                     pars: dict ) -> np.ndarray:
 
     """
-    input:
-    f0:         initial start fatigue at sr_mg_log for every muscle group
-                [time, quad, ham, abs, pec, bu, tri, lat, calf ]
-    sr_mg_log:  stimulated reps for every muscle group
-                [time, quad, ham, abs, pec, bu, tri, lat, calf ]
-    pars:       dict of all parameters.
-
-    output:
-    fatigue:  total fatigue on muscle groups
-                [time, quad, ham, abs, pec, bu, tri, lat, calf ]
+    Input:
+        sr_ex_log:  [t, sr_ex0, sr_ex1, ... ]       (N_t, N_ex + 1)
+        f0:         [f0_mg0, f0_mg1, ... ]          (N_mg, )
+        pars: dict of all parameters
+    Out:
+        f_log:      [t, f_mg0, f_mg1, ... ]         (N_t, N_mg + 1)
 
     """
 
@@ -35,8 +31,8 @@ def compute_fatigue(sr_mg_log: np.ndarray,
     # number of muscle groups
     n_mg = sr_mg_log.shape[1] - 1
 
-    f = np.zeros((N, sr_mg_log.shape[1]))
-    f[:,0] = t_interval
+    f_log = np.zeros((N, sr_mg_log.shape[1]))
+    f_log[:,0] = t_interval
 
     # initalize time and fatigue at workout j
     j_sr = 0
@@ -45,23 +41,22 @@ def compute_fatigue(sr_mg_log: np.ndarray,
 
     # Set inital start fatigue
     if f0 is not None:
-        f_j_sr[0,:] = f0
-
+        f_j_sr[1:] = f0[:]
 
     for i in range(N-1):
         t_i = t_interval[i]
 
         # saving fatigue at previous workout
         if j_sr < sr_mg_log.shape[0] and sr_mg_log[j_sr, 0] < t_i:
-            f[i, 1:] += sr_mg_log[j_sr, 1:]
-            f_j_sr= f[i, :]
+            f_log[i, 1:] += sr_mg_log[j_sr, 1:]
+            f_j_sr= f_log[i, :]
             t_j_sr =  f_j_sr[0]
             j_sr += 1
-        f[i+1, 1:] = f_j_sr[1:]*np.exp(-(t_i - t_j_sr)*rec_rates)
+        f_log[i+1, 1:] = f_j_sr[1:]*np.exp(-(t_i - t_j_sr)*rec_rates)
 
-    return f
+    return f_log
 
-def compute_sr_mg_log(sr_log: np.ndarray,
+def compute_sr_mg_log(sr_ex_log: np.ndarray,
                       pars: dict):
 
     """
@@ -91,8 +86,8 @@ def compute_sr_mg_log(sr_log: np.ndarray,
     T_mg_ex = np.array(T_tmp)
 
     # extract time and exercises
-    t_sr = sr_log[:, 0]
-    sr_ex = sr_log[:,1:]
+    t_sr = sr_ex_log[:, 0]
+    sr_ex = sr_ex_log[:,1:]
     sr_mg = np.dot(sr_ex, T_mg_ex)
 
     # Adds time to log for muscle groups
@@ -102,37 +97,58 @@ def compute_sr_mg_log(sr_log: np.ndarray,
 
     return sr_mg_log
 
-def compute_fatigue_avg(f:      np.ndarray,
+def compute_fatigue_avg(f_log:  np.ndarray,
                         pars:   dict) -> np.ndarray:
 
-    t_moving_avg = pars["wo_opt"]["t_moving_avg"]
-    f_avg = np.zeros(f.shape)
-    f_avg[:,0] = f[:,0]
+    delta_t_avg = pars["wo_opt"]["delta_t_avg"]
 
-    for i in range(1, f.shape[0]):
-        t1 = f[i,0]
-        t0 = max(f[0,0], t1 - t_moving_avg)
-        k = (np.abs(f[:i,0] - t0)).argmin()
-        f_avg[i,1:] = np.mean(f[k:i,1:], axis=0)
+    f_avg_log = np.zeros(f_log.shape)
+    f_avg_log[:,0] = f_log[:,0]
 
-    return f_avg
+    for i in range(1, f_log.shape[0]):
 
-def compute_model(sr_log: np.ndarray,
-                 f0: np.ndarray,
+        t1 = f_log[i,0]
+        t0 = max(f_log[0,0], t1 - delta_t_avg)
+
+        # computes index k at t0
+        k = (np.abs(f_log[:i,0] - t0)).argmin()
+
+        # computes average fatigue from t0 to t1
+        f_avg_log[i,1:] = np.mean(f_log[k:i,1:], axis=0)
+
+    return f_avg_log
+
+def compute_model(sr_ex_log: np.ndarray,
+                 f0:        np.ndarray,
                  pars: dict):
+    """
+    Computing the fatigue, moving average fatigue and stimulated reps for each muscle group given a initial fatigue f0 at 0 and total of stimulated reps.
+
+    Input:
+        sr_ex_log:  [t, sr_ex0, sr_ex1, ... ]       (N_t, N_ex + 1)
+        f0:         [f0_mg0, f0_mg1, ... ]          (N_mg, )
+        pars: dict of all parameters
+    Out:
+        sr_mg_log:  [t, sr_mg0, sr_mg1, ... ]       (N_t, N_mg + 1)
+        f_log:      [t, f_mg0, f_mg1, ... ]         (N_t, N_mg + 1)
+        f_avg_log:  [t, f_mg0, f_mg1, ... ]         (N_t, N_mg + 1)
+
+    """
+
 
     # transform stimulated reps from ecercise to muscle group
-    sr_mg_log = compute_sr_mg_log(sr_log=sr_log,
+    sr_mg_log = compute_sr_mg_log(sr_ex_log=sr_ex_log,
                                   pars=pars)
 
     # compute muscle fatigue
-    f = compute_fatigue(sr_mg_log=sr_mg_log,
-                        f0=f0,
+    f_log = compute_fatigue(sr_mg_log=sr_mg_log,
+                            f0=f0,
                         pars=pars)
 
     # computing moving average of total muscle fatigue
-    f_avg = compute_fatigue_avg(f=f,
+    f_avg_log = compute_fatigue_avg(f_log=f_log,
                                 pars=pars)
 
-    return sr_mg_log, f, f_avg
+
+    return sr_mg_log, f_log, f_avg_log
 

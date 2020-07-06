@@ -41,7 +41,7 @@ def load_params( file_paths: dict ) -> dict:
     pars = {}
     pars["wo_opt"]     = json.loads(parser.get('SR_OPTIONS', 'wo_opt'))
     pars["f_max"]       = json.loads(parser.get('FATIGUE_OPTIONS', 'f_max'))
-    pars["f_d"]         = json.loads(parser.get('FATIGUE_OPTIONS', 'f_d'))
+    pars["f_star"]         = json.loads(parser.get('FATIGUE_OPTIONS', 'f_star'))
     pars["rec_rates"]   = json.loads(parser.get('FATIGUE_OPTIONS', 'rec_rates'))
 
     pars["mg_names"] = json.loads(parser.get('GENERAL', 'mg_names'))
@@ -85,10 +85,12 @@ def import_log( file_paths: dict) -> np.ndarray:
 
 
 
-def plot_model(     sr_log:    np.ndarray,
+def plot_model(     sr_ex_log:    np.ndarray,
                     sr_mg_log: np.ndarray,
-                    f:         np.ndarray,
-                    f_avg:     np.ndarray,
+                    f_log:         np.ndarray,
+                    f_avg_log:     np.ndarray,
+                    f_star:    np.ndarray,
+                    f_max:     np.ndarray,
                     name:      str,
                     pars:      dict):
     """
@@ -97,36 +99,17 @@ def plot_model(     sr_log:    np.ndarray,
         sr_mg_log:  [t, sr_mg0, sr_mg1, ... ]       (N_t, N_mg + 1)
         f_log:      [t, f_mg0, f_mg1, ... ]         (N_t, N_mg + 1)
         f_avg_log:  [t, f_mg0, f_mg1, ... ]         (N_t, N_mg + 1)
+        f_star:     [f_mg, f_mg1, ... ]             (N_mg, )
+        f_max:      [f_mg, f_mg1, ... ]             (N_mg, )
 
 
     name:       name of plot
     pars:       all imported parameters
 
     """
-    def init_pars(t, f_pars):
-        """
-        function to initalize mg parameters in correct format
-        input:
-            t:      array for time
-            f_pars: dictonary for a specific muscle attribute.
-
-        """
-        f_mg_pars = align_mg_pars(f_pars)
-
-        ones = np.ones(t.shape)
-        mat = []
-        mat.append(t)
-        for i in range(f_mg_pars.shape[0]):
-            mat.append(ones*f_mg_pars[i])
-
-        mat = np.array(mat).T
-
-        return mat
 
 
-    # desired fatigue
-    f_ref         = init_pars(f[:,0], pars["f_d"])
-    f_max         = init_pars(f[:,0], pars["f_max"])
+
     plt.rcParams['axes.labelsize'] = 10.0
     plt.rcParams['axes.titlesize'] = 11.0
     plt.rcParams['legend.fontsize'] = 10.0
@@ -161,6 +144,8 @@ def plot_model(     sr_log:    np.ndarray,
 
     plt.figure(name)
     plt.clf()
+
+    # Computing nrows and ncols in pyplot subplots
     mg_names = pars["mg_names"]
 
     N_mg = len(mg_names)
@@ -171,17 +156,41 @@ def plot_model(     sr_log:    np.ndarray,
     else:
         nrows = N_mg//ncols + 1
 
+    # Discretize f_star and f_max
+    def init_log(t, f):
+        """
+        Function to initalize mg parameters in correct format
+        Input:
+            t:      [t0, t1, ... ] (N_t, )  array for time
+            f: [f_mg, f_mg1, ... ] (N_mg, )
+
+        """
+        ones = np.ones(t.shape)
+        mat = []
+        mat.append(t)
+        for i in range(f.shape[0]):
+            mat.append(ones*f[i])
+
+        mat = np.array(mat).T
+
+        return mat
+
+    f_t = f_log[:,0]
+    f_star_log      = init_log(f_t, f_star)
+    f_max_log       = init_log(f_t, f_max)
+
+    # Plot fatigue for each muscle group
     for i in range(1, N_mg + 1):
-        fatigue_subplot(f[:,0], f[:,i],   f_avg[:,i], f_ref[:,i],  f_max[:,i],  sr_mg_log[:,0],  sr_mg_log[:,i], mg_names[i-1],    nrows, ncols, i)
+        fatigue_subplot(f_t, f_log[:,i],   f_avg_log[:,i], f_star_log[:,i],  f_max_log[:,i],  sr_mg_log[:,0],  sr_mg_log[:,i], mg_names[i-1],    nrows, ncols, i)
 
     # plot stimulated reps for exercises
-    def ex_subplot(   sr_t,
-                            sr_ex,
-                            title:  str,
-                            nrows:  int,
-                            ncols:  int,
-                            index:  int):
-        plt.subplot( nrows, ncols, index)
+    def ex_subplot(   sr_t: np.ndarray,
+                      sr_ex: np.ndarray,
+                      title:  str,
+                      nrows:  int,
+                      ncols:  int,
+                      index:  int):
+        plt.subplot(nrows, ncols, index)
         plt.plot(sr_t, sr_ex, label="stimulated reps")
         plt.grid()
         plt.title(title)
@@ -198,7 +207,7 @@ def plot_model(     sr_log:    np.ndarray,
         nrows = N_ex//ncols + 1
 
     for i in range(1, N_ex + 1):
-        ex_subplot(sr_log[:,0], sr_log[:,i], ex_names[i-1], nrows, ncols, i)
+        ex_subplot(sr_ex_log[:,0], sr_ex_log[:,i], ex_names[i-1], nrows, ncols, i)
 
 
 
@@ -228,35 +237,45 @@ if __name__=="__main__":
                                         pars=pars)
 
     print(sr_ex_log)
-    f_d = align_mg_pars(pars["f_d"])
+    f_star = align_mg_pars(pars["f_star"])
     f_max = align_mg_pars(pars["f_max"])
-    f0 = f_log[0, 1:]
+    f0 = f_log[-1, 1:]
 
     method = "pso"
 
     if method =="bfo":
         sr_d_ex_log = bfo.brute_force_optimization(f0=f0,
-                                                f_d=f_d,
+                                                f_d=f_star,
                                                 f_max=f_max,
                                                 pars=pars)
     elif method =="pso":
         sr_d_ex_log = pso.particle_swarm_optimization( f0=f0,
-                                                    f_d=f_d,
+                                                    f_d=f_star,
                                                     f_max=f_max,
                                                     pars=pars)
 
-    sr_d_mg_log, f_d, f_d_avg = model.compute_model(sr_ex_log=sr_d_ex_log,
+    sr_d_mg_log, f_d_log, f_d_avg_log = model.compute_model(sr_ex_log=sr_d_ex_log,
                                                     f0=f0,
                                                     pars=pars)
 
-    # plotting
-    #plot_model(sr_ex_log, sr_mg_log, f_log, f_avg_log, "data", pars)
+    # Plot
+    plot_model(sr_ex_log=sr_d_ex_log,
+               sr_mg_log=sr_d_mg_log,
+               f_log=f_d_log,
+               f_avg_log=f_d_avg_log,
+               f_star=f_star,
+               f_max=f_max,
+               name="desired",
+               pars=pars)
 
-    plot_model(sr_d_ex_log,
-               sr_d_mg_log,
-               f_d,
-               f_d_avg,
-               "desired",
-               pars)
+    plot_model(sr_ex_log=sr_d_ex_log,
+               sr_mg_log=sr_d_mg_log,
+               f_log=f_d_log,
+               f_avg_log=f_d_avg_log,
+               f_star=f_star,
+               f_max=f_max,
+               name="log",
+               pars=pars)
+
 
     plt.show()

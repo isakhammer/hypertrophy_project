@@ -268,10 +268,10 @@ if __name__=="__main__":
                name="desired",
                pars=pars)
 
-    plot_model(sr_ex_log=sr_d_ex_log,
-               sr_mg_log=sr_d_mg_log,
-               f_log=f_d_log,
-               f_avg_log=f_d_avg_log,
+    plot_model(sr_ex_log=sr_ex_log,
+               sr_mg_log=sr_mg_log,
+               f_log=f_log,
+               f_avg_log=f_avg_log,
                f_star=f_star,
                f_max=f_max,
                name="log",

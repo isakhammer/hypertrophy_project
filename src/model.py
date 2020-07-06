@@ -41,7 +41,8 @@ def compute_fatigue(sr_mg_log: np.ndarray,
 
     # Set inital start fatigue
     if f0 is not None:
-        f_j_sr[1:] = f0[:]
+        f_j_sr[1:] = f0
+        f_log[0, 1:] = f_j_sr[1:]
 
     for i in range(N-1):
         t_i = t_interval[i]

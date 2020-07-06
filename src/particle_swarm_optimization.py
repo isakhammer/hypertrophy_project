@@ -60,12 +60,14 @@ def particle_swarm_optimization(f0: np.ndarray,
     global_best_value = np.inf
     for i in range(n):
 
+        print("Par")
         for p in particles:
             sr_ex_log[:, 1:] = p.pos.reshape(N_t, N_ex)
-            sr_mg, f, f_avg= model.compute_model(   sr_ex_log=sr_ex_log,
+            sr_mg, f_log, f_avg_log= model.compute_model(   sr_ex_log=sr_ex_log,
                                                     f0=f0,
                                                     pars=pars)
-            value =  np.linalg.norm(f_avg[:,1:] - f_star)
+            print("favg", f_avg_log)
+            value =  np.linalg.norm(f_avg_log[:,1:] - f_star)
 
             if value < p.best_value:
                 p.best_value = value

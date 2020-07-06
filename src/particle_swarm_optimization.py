@@ -10,14 +10,14 @@ class Particle:
 
 
 def particle_swarm_optimization(f0: np.ndarray,
-                                f_d: np.ndarray,
+                                f_star: np.ndarray,
                                 f_max: np.ndarray,
                                 pars: dict):
 
     """
     Input:
         f0_d:       [sr_ex0, sr_ex1, ... ]          (N_ex, )
-        f_d:        [f_d_mg0, f_d_mg1, ... ]        (N_mg, )
+        f_star:        [f_d_mg0, f_d_mg1, ... ]        (N_mg, )
         f_max:      [f_d_mg0, f_d_mg1, ... ]        (N_mg, )
         pars: dict of all parameters
     Out:
@@ -65,7 +65,7 @@ def particle_swarm_optimization(f0: np.ndarray,
             sr_mg, f, f_avg= model.compute_model(   sr_ex_log=sr_ex_log,
                                                     f0=f0,
                                                     pars=pars)
-            value =  np.linalg.norm(f_avg[:,1:] - f_d)
+            value =  np.linalg.norm(f_avg[:,1:] - f_star)
 
             if value < p.best_value:
                 p.best_value = value

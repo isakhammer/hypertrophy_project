@@ -239,18 +239,19 @@ if __name__=="__main__":
     print(sr_ex_log)
     f_star = align_mg_pars(pars["f_star"])
     f_max = align_mg_pars(pars["f_max"])
+
     f0 = f_log[-1, 1:]
 
     method = "pso"
 
     if method =="bfo":
         sr_d_ex_log = bfo.brute_force_optimization(f0=f0,
-                                                f_d=f_star,
+                                                f_star=f_star,
                                                 f_max=f_max,
                                                 pars=pars)
     elif method =="pso":
         sr_d_ex_log = pso.particle_swarm_optimization( f0=f0,
-                                                    f_d=f_star,
+                                                    f_star=f_star,
                                                     f_max=f_max,
                                                     pars=pars)
 

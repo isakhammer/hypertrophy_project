@@ -3,13 +3,13 @@ from src import model
 
 
 def brute_force_optimization(f0:    np.ndarray,
-                             f_d:   np.ndarray,
+                             f_star:   np.ndarray,
                              f_max: np.ndarray,
                              pars: dict):
     """
     Input:
         f0_d:       [sr_ex0, sr_ex1, ... ]          (N_ex, )
-        f_d:        [f_d_mg0, f_d_mg1, ... ]        (N_mg, )
+        f_star:        [f_d_mg0, f_d_mg1, ... ]        (N_mg, )
         f_max:      [f_d_mg0, f_d_mg1, ... ]        (N_mg, )
         pars: dict of all parameters
     Out:
@@ -36,7 +36,7 @@ def brute_force_optimization(f0:    np.ndarray,
                                                                 f0=f0,
                                                                 pars=pars)
 
-        f_cost_cand = np.linalg.norm(f_avg_cand[:,1:] - f_d)
+        f_cost_cand = np.linalg.norm(f_avg_cand[:,1:] - f_star)
 
         if f_cost_cand < f_cost_values[-1]:
             sr_ex_log = sr_ex_log_cand

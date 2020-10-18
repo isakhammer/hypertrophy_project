@@ -6,7 +6,7 @@ Project supposed to maximize hypertrophy based on using stimulated reps as a mea
 - https://www.instagram.com/p/BrhZ9-UAE4D/
 - https://www.instagram.com/p/BuV21BzAc1d/
 
-# Optimal control system concept for workout
+# Optimal control system concept for a workout planner.
 Initial Fatigue ->  Optimal Controller -> Desired Stimulated Reps -> Workout Planner
 
 
